@@ -10,6 +10,10 @@
     // Opção B: Se não tiveres Dockerfile, comenta o bloco acima e usa a imagem direta:
     // "image": "osrf/ros:humble-desktop-full",
 
+    "features": {
+        "ghcr.io/devcontainers/features/python:1": {}
+    },
+    
     "remoteUser": "ros",
     
     // Configurações críticas para a estrutura sem 'src'
