@@ -1,33 +1,29 @@
 # Imagem Base Oficial do ROS 2 Humble (Ubuntu 22.04)
-FROM osrf/ros:humble-desktop-full
-
+#FROM osrf/ros:humble-desktop-full
+FROM ros:humble
 # Define variáveis de ambiente para evitar interatividade na instalação
 ENV DEBIAN_FRONTEND=noninteractive
-ENV SHELL /bin/bash
-
-# Copia requirements.txt ANTES de instalar (melhor caching)
-COPY requirements.lock /tmp/requirements.lock
-#pip-compile requirements.txt --output-file=requirements.lock
-RUN pip3 install --no-cache-dir -r /tmp/requirements.lock
+#ENV SHELL /bin/bash
 
 # 2. Instalar dependências básicas do sistema e ferramentas de build
-RUN apt-get update && apt-get install -y --no-install-recommends \
+#RUN apt-get update && apt-get install -y --no-install-recommends \
+RUN apt-get update && apt-get install -y \
     python3-pip \
-    python3-venv \
     python3-dev \
+    python3-colcon-common-extensions \
+    python3-rosdep \
     git \
     build-essential \
     cmake \
-    python3-colcon-common-extensions \
-    python3-rosdep \
+    
     # Limpeza para reduzir tamanho da imagem
-    && rm -rf /var/lib/apt/lists/* \
-    && pip3 install pip-tols \
-    && pip3 install --no-cache-dir -r /tmp/requirements.txt
+    && rm -rf /var/lib/apt/lists/* 
 
-# Configurar o Ambiente ROS automaticamente
+# Copia requirements.txt ANTES de instalar (melhor caching)
+COPY requirements.txt /tmp/requirements.txt
 
-USER ros
+#pip-compile requirements.txt --output-file=requirements.lock
+RUN pip3 install -r /tmp/requirements.txt
 
 # Adiciona o 'source' ao .bashrc para não precisares digitar sempre
 RUN echo "source /opt/ros/humble/setup.bash" >> /home/$USERNAME/.bashrc
