@@ -10,11 +10,7 @@
     // Opção B: Se não tiveres Dockerfile, comenta o bloco acima e usa a imagem direta:
     // "image": "osrf/ros:humble-desktop-full",
 
-    "features": {
-        "ghcr.io/devcontainers/features/python:1": {}
-    },
-    
-    "remoteUser": "ros",
+    "remoteUser": "root",
     
     // Configurações críticas para a estrutura sem 'src'
     "customizations": {
@@ -26,15 +22,6 @@
                 "ms-iot.vscode-ros"
             ],
             "settings": {
-                "python.defaultInterpreterPath": "/usr/bin/python3",
-                "python.analysis.typeCheckingMode": "basic",
-                
-                // CRÍTICO: Diz ao Pylance que a raiz do projeto contém os módulos
-                "python.analysis.extraPaths": [
-                    "${workspaceFolder}/install/bbac_ics/local/lib/python3.10/dist-packages",
-                    "${workspaceFolder}/bbac_ics_core"
-                ],
-                
                 // Formatação automática (opcional, mas bom para papers)
                 "editor.formatOnSave": true,
                 "python.formatting.provider": "black"
