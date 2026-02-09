@@ -22,6 +22,7 @@ RUN apt-get update && apt-get install -y --no-install-recommends \
     python3-rosdep \
     # Limpeza para reduzir tamanho da imagem
     && rm -rf /var/lib/apt/lists/* \
+    && pip3 install pip-tols \
     && pip3 install --no-cache-dir -r /tmp/requirements.txt
 
 # Configurar o Ambiente ROS automaticamente
