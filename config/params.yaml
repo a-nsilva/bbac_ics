@@ -1,0 +1,89 @@
+# BBAC_ICS - Global Configuration
+# Adaptive baseline settings for behavioral modeling
+
+baseline:
+  # Sliding window configuration
+  window_days: 10                    # Number of days for baseline window
+  recent_weight: 0.7                 # Weight for recent data (70%)
+  # historical_weight is automatically 1 - recent_weight (30%)
+  
+  # Historical baseline archiving
+  max_historical_baselines: 10       # Maximum number of archived baselines per agent
+  
+  # Baseline update triggers
+  update_on_buffer_full: true        # Update when trusted buffer is full
+  update_on_drift_detected: false    # Update when drift is detected (future)
+
+  enable_behavioral: true          # Flag para camada comportamental
+
+fusion:
+  fusion_method: weighted_voting # Options: 'weighted_voting', 'rule_priority', 'high_confidence_denial'
+  enable_ml: true                  # Flag para camada ML/sequence
+  
+  # Layer weights (must sum to 1.0)
+  weights:
+    rule: 0.4           # Policy/RuBAC layer weight
+    behavioral: 0.3     # Statistical analysis layer weight
+    ml: 0.3             # ML/Sequence layer weight
+  
+  # Thresholds
+  high_confidence_threshold: 0.9   # Threshold for high-confidence denial strategy
+  decision_threshold: 0.5          # Threshold for grant vs deny (score >= threshold → grant)
+  
+  # Meta-classifier settings
+  use_meta_classifier: false
+  meta_classifier_model: logistic_regression  # option: 'xgboost'
+
+ml_params:
+  statistical:
+    anomaly_threshold: 0.5
+    contamination: 0.1
+  sequence:
+    anomaly_threshold: 0.5
+    sequence_length: 5
+
+  # Continuous learning
+learning:
+  buffer_size: 1000                  # Trusted buffer size before triggering updates
+  min_samples_for_update: 100        # Minimum samples required for profile update
+  trust_threshold: 0.8
+
+# Policy engine
+policy:
+  maintenance_hours: [2, 3]          # Maintenance hours (2 AM - 4 AM)
+  enable_policy: true              # Flag para camada de política
+
+ros:
+  node_name: bbac_node
+  target_latency_ms: 100.0          # Target decision latency (sub-100ms goal)
+  qos_depth: 10                     # ROS2 QoS queue depth
+
+# File paths
+paths:
+  data_dir: data/raw
+  profiles_dir: profiles
+  logs_dir: logs
+  quarantine_dir: quarantine
+  train_file: trainer.csv
+  validation_file: validation.csv
+  test_file: test.csv
+
+thresholds:
+  max_auth_attempts: 3
+  trust_threshold: 0.8
+  min_confidence_for_update: 0.7
+  require_grant_for_update: true
+  t1_allow: 0.7
+  t2_mfa: 0.5
+  t3_review: 0.3
+  high_confidence_alert: 0.8   # Threshold para disparar alertas
+
+emergency_defaults:
+  severity: high
+  priority: 80
+  required_actions:
+    - log_incident
+    - notify_supervisor
+  notifications:
+    - supervisor
+    - security_officer
