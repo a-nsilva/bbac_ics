@@ -1,4 +1,4 @@
-# 1. Imagem Base Oficial do ROS 2 Humble (Ubuntu 22.04)
+# Imagem Base Oficial do ROS 2 Humble (Ubuntu 22.04)
 FROM osrf/ros:humble-desktop-full
 
 # Define variáveis de ambiente para evitar interatividade na instalação
@@ -6,7 +6,7 @@ ENV DEBIAN_FRONTEND=noninteractive
 ENV SHELL /bin/bash
 
 # Copia requirements.txt ANTES de instalar (melhor caching)
-COPY requirements.txt /tmp/requirements.txt
+COPY requirements.lock /tmp/requirements.lock
 #pip-compile requirements.txt --output-file=requirements.lock
 RUN pip3 install --no-cache-dir -r /tmp/requirements.lock
 
@@ -24,7 +24,10 @@ RUN apt-get update && apt-get install -y --no-install-recommends \
     && rm -rf /var/lib/apt/lists/* \
     && pip3 install --no-cache-dir -r /tmp/requirements.txt
 
-# 5. Configurar o Ambiente ROS automaticamente
+# Configurar o Ambiente ROS automaticamente
+
+USER ros
+
 # Adiciona o 'source' ao .bashrc para não precisares digitar sempre
 RUN echo "source /opt/ros/humble/setup.bash" >> /home/$USERNAME/.bashrc
 
