@@ -15,43 +15,42 @@
   <maintainer email="alnsilva@uesc.be">Alexandre do Nascimento Silva</maintainer>
   <license>APACHE 2.0</license>
   
-  <url type="website">https://github.com/yourusername/bbac-framework</url>
-  <url type="repository">https://github.com/yourusername/bbac-framework</url>
-  <url type="bugtracker">https://github.com/yourusername/bbac-framework/issues</url>
+  <url type="website">https://github.com/yourusername/bbac_ics</url>
+  <url type="repository">https://github.com/yourusername/bbac_ics</url>
+  <url type="bugtracker">https://github.com/yourusername/bbac_ics/issues</url>
   
   <author email="your.email@example.com">Your Name</author>
   
   <!-- Build tool -->
   <buildtool_depend>ament_cmake</buildtool_depend>
-  <!--
-  <buildtool_depend>ament_cmake_python</buildtool_depend>
-  -->
   
-  <!-- Core ROS -->
-  <depend>rclpy</depend>
-  <depend>std_msgs</depend>
-  
-  <!-- Python 3.10 strict requirement -->
+  <!-- Build dependencies --> 
+  <build_depend>rosidl_default_generators</build_depend> 
+  <build_depend>ament_cmake_python</build_depend>
+
+  <!-- Execution dependencies --> 
   <exec_depend>python3</exec_depend>
+  <exec_depend>rclpy</exec_depend> 
+  <exec_depend>rosidl_default_runtime</exec_depend>
+  <exec_depend>std_msgs</exec_depend> 
   
-  <!-- Scientific stack -->
-  <exec_depend>python3-numpy</exec_depend>
-  <exec_depend>python3-scipy</exec_depend>
-  <exec_depend>python3-pandas</exec_depend>
-  
-  <exec_depend>python3-yaml</exec_depend>
-  <exec_depend>python3-sklearn</exec_depend>
-  
-  <!-- Visualization -->
-  <exec_depend>python3-matplotlib</exec_depend>
+  <!-- Python libs --> 
+  <exec_depend>python3-numpy</exec_depend> 
+  <exec_depend>python3-scipy</exec_depend> 
+  <exec_depend>python3-pandas</exec_depend> 
+  <exec_depend>python3-yaml</exec_depend> 
+  <exec_depend>python3-sklearn</exec_depend> 
+  <exec_depend>python3-matplotlib</exec_depend> 
   <exec_depend>python3-seaborn</exec_depend>
-  
   
   <!-- Test dependencies -->
   <test_depend>ament_lint_auto</test_depend>
   <test_depend>ament_lint_common</test_depend>
+  <test_depend>ament_cmake_pytest</test_depend>
   <test_depend>python3-pytest</test_depend>
-    
+  
+  <member_of_group>rosidl_interface_packages</member_of_group>
+
   <export>
     <build_type>ament_cmake</build_type>
   </export>
