@@ -1,16 +1,11 @@
 {
     "name": "BBAC Framework (ROS 2 Humble)",
-    
     "build": {
         "dockerfile": "Dockerfile",
-        "context": ".."
+        "context": "."
     },
-
     "workspaceFolder": "/workspaces/bbac_ics",
-
     "remoteUser": "root",
-    
-    // Configurações críticas para a estrutura sem 'src'
     "customizations": {
         "vscode": {
             "extensions": [
@@ -20,28 +15,19 @@
                 "ms-vscode.cmake-tools"                
             ],
             "settings": {
-                // Formatação automática (opcional, mas bom para papers)
                 "editor.formatOnSave": true,
                 "python.formatting.provider": "black",
                 "terminal.integrated.defaultProfile.linux": "bash"
             }
         }
     },
-
-    // Permissões para GUI (Matplotlib/Rviz)
     "runArgs": [
-        "--net=host",
-        "--cap-add=SYS_PTRACE"
-        // Descomenta as linhas abaixo se estiveres em Linux com X11 para ver gráficos
-        // "-e", "DISPLAY=${env:DISPLAY}",
-        // "-v", "/tmp/.X11-unix:/tmp/.X11-unix"
+        "--cap-add=SYS_PTRACE",
+        "-e", "DISPLAY=${env:DISPLAY}",
+        "-v", "/tmp/.X11-unix:/tmp/.X11-unix"
     ],
-
     "mounts": [
         "source=${localWorkspaceFolder},target=/workspaces/bbac_ics,type=bind"
     ],
-
-    //"postCreateCommand": "pip install -r requirements.txt",
-    //"postCreateCommand": "rosdep update && rosdep install --from-paths . --ignore-src -r -y && pip3 install -r src/bbac_ics/requirements.txt"
-
+    "postCreateCommand": "rosdep update && rosdep install --from-paths . --ignore-src --rosdistro humble -y && pip3 install -r requirements.txt && colcon build --symlink-install && echo 'source /workspaces/bbac_ics/install/setup.bash' >> ~/.bashrc"
 }
