@@ -17,11 +17,6 @@ matplotlib~=3.8
 seaborn~=0.13
 plotly~=5.18
 
-# ROS2 Python (installed via rosdep, listed for reference)
-# rclpy
-# std_msgs
-# sensor_msgs
-
 # Deep Learning (opcional - para LSTM)
 tensorflow>=2.13.0
 keras>=2.13.0
