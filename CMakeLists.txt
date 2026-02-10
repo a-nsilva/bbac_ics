@@ -12,16 +12,8 @@ find_package(rclpy REQUIRED)
 find_package(std_msgs REQUIRED)
 find_package(rosidl_default_generators REQUIRED)
 
-# 2. Generate custom messages
-rosidl_generate_interfaces(${PROJECT_NAME}
-  "msg/AccessRequest.msg"
-  "msg/AccessDecision.msg"
-  "msg/EmergencyAlert.msg"
-  "msg/LayerOutput.msg"  
-  DEPENDENCIES std_msgs
-)
-
 # 3. Install Python Module (bbac_ics_core/)
+### ament_python_install_package(bbac_ics_core)
 install(DIRECTORY bbac_ics_core/
   DESTINATION lib/${PROJECT_NAME}/bbac_ics_core
 )
@@ -42,6 +34,7 @@ install(PROGRAMS
   DESTINATION lib/${PROJECT_NAME}
 )
 # 6. Install Configs & Launch
+install(DIRECTORY msg DESTINATION share/${PROJECT_NAME}/)
 install(DIRECTORY launch DESTINATION share/${PROJECT_NAME}/)
 install(DIRECTORY config DESTINATION share/${PROJECT_NAME}/)
 install(DIRECTORY data DESTINATION share/${PROJECT_NAME}/)
