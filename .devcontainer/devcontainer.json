@@ -1,14 +1,10 @@
 {
     "name": "BBAC Framework (ROS 2 Humble)",
     
-    // Opção A: Se tiveres um Dockerfile dentro da pasta .devcontainer/ (Recomendado)
     "build": {
         "dockerfile": "Dockerfile",
         "context": ".."
     },
-
-    // Opção B: Se não tiveres Dockerfile, comenta o bloco acima e usa a imagem direta:
-    // "image": "osrf/ros:humble-desktop-full",
 
     "remoteUser": "root",
     
@@ -50,5 +46,6 @@
 
     // Comandos executados após a criação do container
     // Instala dependências do Python e do ROS automaticamente
-    "postCreateCommand": "sudo apt-get update && sudo apt-get install -y python3-pip && pip3 install -r requirements.lock && rosdep update && rosdep install --from-paths . --ignore-src -y && colcon build --symlink-install"
+    //"postCreateCommand": "sudo apt-get update && sudo apt-get install -y python3-pip && pip3 install -r requirements.lock && rosdep update && rosdep install --from-paths . --ignore-src -y && colcon build --symlink-install"
+    "postCreateCommand": "pip install -r requirements.txt",
 }
