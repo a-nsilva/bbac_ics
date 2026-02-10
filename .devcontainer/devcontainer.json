@@ -6,33 +6,26 @@
         "context": ".."
     },
 
+    "workspaceFolder": "/workspaces/bbac_ics",
+
     "remoteUser": "root",
     
     // Configurações críticas para a estrutura sem 'src'
     "customizations": {
         "vscode": {
             "extensions": [
+                "ms-iot.vscode-ros",
                 "ms-python.python",
                 "ms-python.vscode-pylance",
-                "ms-vscode.cpptools",
-                "ms-iot.vscode-ros"
+                "ms-vscode.cmake-tools"                
             ],
             "settings": {
                 // Formatação automática (opcional, mas bom para papers)
                 "editor.formatOnSave": true,
-                "python.formatting.provider": "black"
+                "python.formatting.provider": "black",
+                "terminal.integrated.defaultProfile.linux": "bash"
             }
         }
-    },
-
-    // Variáveis de ambiente dentro do container
-    "remoteEnv": {
-        // CRÍTICO: Adiciona a raiz do workspace ao PYTHONPATH
-        // Isso permite fazer "import bbac" nos scripts e no terminal
-        "PYTHONPATH": "${workspaceFolder}/install/bbac_ics/local/lib/python3.10/dist-packages:${workspaceFolder}",
-        
-        // Define um ID para evitar conflitos de ROS na rede
-        "ROS_LOCALHOST_ONLY": "1"
     },
 
     // Permissões para GUI (Matplotlib/Rviz)
@@ -44,8 +37,11 @@
         // "-v", "/tmp/.X11-unix:/tmp/.X11-unix"
     ],
 
-    // Comandos executados após a criação do container
-    // Instala dependências do Python e do ROS automaticamente
-    //"postCreateCommand": "sudo apt-get update && sudo apt-get install -y python3-pip && pip3 install -r requirements.lock && rosdep update && rosdep install --from-paths . --ignore-src -y && colcon build --symlink-install"
-    "postCreateCommand": "pip install -r requirements.txt",
+    "mounts": [
+        "source=${localWorkspaceFolder},target=/workspaces/bbac_ics,type=bind"
+    ],
+
+    //"postCreateCommand": "pip install -r requirements.txt",
+    //"postCreateCommand": "rosdep update && rosdep install --from-paths . --ignore-src -r -y && pip3 install -r src/bbac_ics/requirements.txt"
+
 }
