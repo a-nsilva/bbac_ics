@@ -195,7 +195,6 @@ class DecisionType(str, Enum):
     REQUIRE_APPROVAL = "require_approval"
     UNCERTAIN = "uncertain"
 
-
 class EmergencyType(Enum):
     """Types of emergency events."""
     FIRE = "fire"
@@ -206,14 +205,12 @@ class EmergencyType(Enum):
     NETWORK_ATTACK = "network_attack"
     HUMAN_INJURY = "human_injury"
 
-
 class FusionStrategy(Enum):
     """Decision fusion strategies for combining 3 layers."""
     RULE_PRIORITY = "rule_priority"
     HIGH_CONFIDENCE_DENIAL = "high_confidence_denial"
     WEIGHTED_VOTING = "weighted_voting"
     META_CLASSIFIER = "meta_classifier"
-
 
 class ResourceType(Enum):
     """Types of resources - Generic categories + dynamic string support."""
@@ -279,7 +276,6 @@ class ResourceType(Enum):
         
         return cls.OTHER
 
-
 class RequestFrequency(Enum):
     """Request frequency levels with time ranges in seconds."""
     VERY_HIGH = (1, 2)      # 1-2 seconds
@@ -304,7 +300,6 @@ class RequestFrequency(Enum):
 # ============================================================================
 # DATACLASSES
 # ============================================================================
-
 @dataclass
 class AgentConfig:
     """Configuration for any agent (robot or human)."""
@@ -470,7 +465,6 @@ class HybridDecision:
         #if self.total_latency_ms < 0:
         #    raise ValueError("Latency cannot be negative")
 
-
 @dataclass
 class BBACConfig:
     """BBAC Engine configuration."""
@@ -495,7 +489,6 @@ class BBACConfig:
         if self.enable_ml:
             layers.append("ml")
         return layers
-
 
 @dataclass
 class ClassificationMetrics:
@@ -530,7 +523,6 @@ class ClassificationMetrics:
             },
         }
 
-
 @dataclass
 class LatencyMetrics:
     mean: float
@@ -549,7 +541,6 @@ class LatencyMetrics:
             "p99": self.p99,
         }
 
-
 @dataclass
 class PerformanceMetrics:
     latency: LatencyMetrics
@@ -564,7 +555,6 @@ class PerformanceMetrics:
             "total_requests": self.total_requests,
             "processing_time": self.total_time,
         }
-
 
 @dataclass
 class StatisticalTest:
@@ -581,7 +571,6 @@ class StatisticalTest:
             "ci_95": [self.ci_low, self.ci_high],
             "significant": self.significant,
         }
-    
 
 @dataclass
 class ExperimentConfig:
@@ -595,7 +584,6 @@ class ExperimentConfig:
     dataset_split: str = 'test'  # 'train', 'validation', 'test'
     save_results: bool = True
     output_dir: str
-
 
 @dataclass 
 class ExperimentResult:
@@ -639,7 +627,6 @@ class PolicyConfig:
     critical_resources: List[str]  # Recursos de alto risco
     emergency_override_roles: List[AgentRole]
     forbidden_pairs: Dict[ActionType, List[ResourceType]]
-    maintenance_hours: List[int]
 
 @dataclass
 class ROSConfig:
