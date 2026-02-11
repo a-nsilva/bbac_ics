@@ -1,6 +1,6 @@
 # BBAC ICS Framework
 
-![License](https://img.shields.io/badge/license-Apache%202.0-blue.svg)](https://opensource.org/licenses/Apache-2.0)
+[![License](https://img.shields.io/badge/license-Apache%202.0-blue.svg)](https://opensource.org/licenses/Apache-2.0)
 [![Python 3.10+](https://img.shields.io/badge/python-3.10+-blue.svg)](https://www.python.org/downloads/)
 [![ROS2 Humble](https://img.shields.io/badge/ROS2-Humble-blue.svg)](https://docs.ros.org/en/humble/)
 [![DOI](https://img.shields.io/badge/DOI-pending-orange.svg)](https://github.com/a-nsilva/bbac_ics)
@@ -126,6 +126,7 @@ bbac_ics/
 │   ├── devcontainer.json
 │   └── Dockerfile
 ├── bbac_ics_core/
+│   ├── __init__.py
 │   ├── experiments/
 │   │   ├── __init__.py
 │   │   ├── ablation_study.py
@@ -142,10 +143,11 @@ bbac_ics/
 │   │   ├── learning.py      # Layer 5: Continuous learning
 │   │   └── modeling.py      # Layer 2: Baseline + profiles
 │   ├── models/      # LSTM, statistical, fusion
+│   │   └── __init__.py
 │   ├── nodes/         # ROS2 integration
 │   │   ├── __init__.py
 │   │   ├── baseline_manager_node.py
-│   │   └── bbac_main_node.py
+│   │   ├── bbac_main_node.py
 │   │   └── evalutior_node.py
 │   └── util/        # Utilities
 │       ├── --init__.py
