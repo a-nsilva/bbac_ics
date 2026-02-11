@@ -25,7 +25,7 @@ from ..utils.data_structures import (
 logger = logging.getLogger(__name__)
 
 
-class DatasetLoader:
+class DataLoader:
     """Loads and manages the BBAC dataset with structure conversion."""
     
     def __init__(self, dataset_path: Optional[Path] = None):
@@ -516,3 +516,14 @@ class DatasetLoader:
             labels = None
         
         return features, labels
+
+    def load_split(self, split: str) -> pd.DataFrame:
+        """Load specific split (usado em experiments)."""
+        if split == 'train':
+            return self.train_data if self.train_data is not None else pd.DataFrame()
+        elif split == 'validation':
+            return self.validation_data if self.validation_data is not None else pd.DataFrame()
+        elif split == 'test':
+            return self.test_data if self.test_data is not None else pd.DataFrame()
+        else:
+            raise ValueError(f"Invalid split: {split}")
