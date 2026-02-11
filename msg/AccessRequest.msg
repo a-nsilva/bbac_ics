@@ -36,4 +36,7 @@ string policy_id           # Applied policy identifier (optional)
 # Optional fields
 string zone                # Alias for location (backward compatibility)
 float64 priority           # Request priority (1.0 to 10.0), default: 5.0
-string[] context_data      # Additional context as key-value pairs
+#string[] context_data      # Additional context as key-value pairs
+string context_json       # JSON serializado de Dict[str, Any]
+
+string ground_truth       # Ground truth label ('allow', 'deny', 'mfa', 'review') - apenas datasets
