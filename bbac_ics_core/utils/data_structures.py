@@ -212,6 +212,7 @@ class FusionStrategy(Enum):
     RULE_PRIORITY = "rule_priority"
     HIGH_CONFIDENCE_DENIAL = "high_confidence_denial"
     WEIGHTED_VOTING = "weighted_voting"
+    META_CLASSIFIER = "meta_classifier"
 
 
 class ResourceType(Enum):
@@ -635,6 +636,10 @@ class LearningConfig:
 @dataclass
 class PolicyConfig:
     maintenance_hours: List[int]
+    critical_resources: List[str]  # Recursos de alto risco
+    emergency_override_roles: List[AgentRole]
+    forbidden_pairs: Dict[ActionType, List[ResourceType]]
+    maintenance_hours: List[int]
 
 @dataclass
 class ROSConfig:
@@ -668,7 +673,11 @@ class ThresholdsConfig:
   t2_mfa: float
   t3_review: float
   high_confidence_alert: float
+  score_interpretation: str = "lower_is_riskier"  # ou "higher_is_riskier"
+  use_confidence_weighted: bool = True
+  min_confidence_for_auto: float = 0.9
 
+    
 __all__ = [
     # Type aliases
     'AgentID',
