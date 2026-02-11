@@ -16,6 +16,14 @@ baseline:
 
   enable_behavioral: true          # Flag para camada comportamental
 
+  # Adicionar em baseline:
+  drift_detection:
+    enabled: false           # Ativar depois
+    method: kl_divergence    # ou 'ks_test'
+    threshold: 0.15
+    min_samples: 50
+    check_interval_hours: 6
+
 fusion:
   fusion_method: weighted_voting # Options: 'weighted_voting', 'rule_priority', 'high_confidence_denial'
   enable_ml: true                  # Flag para camada ML/sequence
