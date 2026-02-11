@@ -1,5 +1,10 @@
 # BBAC ICS Framework
 
+![License](https://img.shields.io/badge/license-Apache%202.0-blue.svg)](https://opensource.org/licenses/Apache-2.0)
+[![Python 3.10+](https://img.shields.io/badge/python-3.10+-blue.svg)](https://www.python.org/downloads/)
+[![ROS2 Humble](https://img.shields.io/badge/ROS2-Humble-blue.svg)](https://docs.ros.org/en/humble/)
+[![DOI](https://img.shields.io/badge/DOI-pending-orange.svg)](https://github.com/a-nsilva/bbac_ics)
+
 **Behavioral-Based Access Control Framework for Industrial Control Systems**
 
 A hybrid access control system combining rule-based policies, behavioral analysis, and machine learning for adaptive security in ICS environments.
@@ -30,75 +35,51 @@ A hybrid access control system combining rule-based policies, behavioral analysi
 - ROS2 Humble Hawksbill
 - **Python 3.10** (strict requirement for ROS2 Humble compatibility)
 
-**Verify Python version:**
-```bash
-python3 --version
-# Should output: Python 3.10.x
-```
-
 ### Setup
 
-#### 1. Install ROS2 Humble
-
-Follow official guide: https://docs.ros.org/en/humble/Installation.html
-```bash
-# Quick install (Ubuntu 22.04)
-sudo apt update
-sudo apt install ros-humble-desktop
-```
-
-#### 2. Install System Dependencies
-```bash
-# Install Python system packages
-sudo apt install -y \
-  python3-pip \
-  python3-numpy \
-  python3-scipy \
-  python3-pandas \
-  python3-yaml \
-  python3-sklearn \
-  python3-matplotlib \
-  python3-seaborn \
-  python3-pytest
-```
-
-#### 3. Clone and Setup Framework
+#### Clone and Setup Framework
 ```bash
 # Create workspace
-mkdir -p ~/bbac_ws/src
-cd ~/bbac_ws/src
+mkdir -p ~/bbac_ics
+cd ~/bbac_ics
 
 # Clone repository
-git clone https://github.com/yourusername/bbac-framework.git
-cd bbac-framework
-
-# Install Python dependencies (versions matched to ROS2 Humble)
-pip3 install -r requirements.txt
+git clone https://github.com/yourusername/bbac_ics.git
+cd bbac_ics
 
 # Important: This installs plotly and ensures correct numpy/scipy versions
 ```
 
-#### 4. Build ROS2 Package
+#### Automatic Initialization
+During container creation, the following steps are executed:
+```bash
+rosdep update
+rosdep install --from-paths . --ignore-src -y
+pip install -r requirements.txt
+colcon build --symlink-install
+```
+
+#### Manual Build ROS2 Package (optional)
 ```bash
 # Go to workspace root
-cd ~/bbac_ws
+/workspaces/bbac_ics
+
+# Clean
+rm -rf build install log
 
 # Build package
 colcon build --packages-select bbac_framework
 
 # Source workspace
 source install/setup.bash
-
-# Add to bashrc for convenience
-echo "source ~/bbac_ws/install/setup.bash" >> ~/.bashrc
 ```
 
-#### 5. Verify Installation
+#### Verify Installation
 ```bash
 # Check if package is available
 ros2 pkg list | grep bbac
 
-# Should output: bbac_framework
+# Should output: bbac_ics
 
 # Verify Python imports
 python3 -c "import numpy, scipy, pandas, sklearn, matplotlib, seaborn, plotly; print('All dependencies OK')"
@@ -109,7 +90,7 @@ python3 -c "import numpy, scipy, pandas, sklearn, matplotlib, seaborn, plotly; p
 ### Run BBAC Node
 ```bash
 # Terminal 1: Launch BBAC node
-ros2 run bbac_framework bbac_node.py
+ros2 run bbac_ics bbac_main_node.py
 
 # Or with launch file (configurable parameters)
 ros2 launch bbac_framework bbac.launch.py \
@@ -121,59 +102,81 @@ ros2 launch bbac_framework bbac.launch.py \
 ### Run Experiments
 ```bash
 # Terminal 1: BBAC node (must be running)
-ros2 run bbac_framework bbac_node.py
+ros2 run bbac_ics bbac_main_node.py
 
 # Terminal 2: Run experiments sequentially
-python3 experiments/ablation_study.py
-python3 experiments/baseline_comparison.py
-python3 experiments/adaptive_eval.py
+python3 bbac_ics_core/experiments/ablation_study.py
+python3 bbac_ics_core/experiments/adaptative_eval.py
+python3 bbac_ics_core/experiments/dynamic_rules.py
 ```
 
 ## Configuration
 
-Edit YAML files in `config/`:
+Edit YAML files in `config/params.yaml`:
 
-- `baseline.yaml` - Baseline window settings (sliding window: 70% recent + 30% historical)
-- `fusion.yaml` - Layer fusion weights (default: rule=0.4, behavioral=0.3, ml=0.3)
-- `thresholds.yaml` - Decision thresholds (T1=0.7 grant, T2=0.5 MFA, T3=0.3 review)
-- `ros_params.yaml` - System parameters (target latency: 100ms)
+- Baseline window settings (sliding window: 70% recent + 30% historical)
+- Layer fusion weights (default: rule = 0.4, behavioral = 0.3, ml = 0.3)
+- Decision thresholds (T1 = 0.7 grant, T2 = 0.5 MFA, T3 = 0.3 review)
+- System parameters (target latency: 100ms)
 
 ## Architecture
 ```
-bbac_framework/
-├── config/          # Configuration files (YAML)
-├── data/            # Dataset (100k samples)
-│   └── 100k/
-│       ├── bbac_trainer.csv
-│       ├── bbac_validation.csv
-│       ├── bbac_test.csv
-│       ├── agents.json
-│       └── anomaly_metadata.json
-├── experiments/     # Evaluation scripts
-│   ├── ablation_study.py
-│   ├── baseline_comparison.py
-│   └── adaptive_eval.py
+bbac_ics/
+├── .devcontainer/
+│   ├── devcontainer.json
+│   └── Dockerfile
+├── bbac_ics_core/
+│   ├── experiments/
+│   │   ├── __init__.py
+│   │   ├── ablation_study.py
+│   │   ├── adaptive_eval.py
+│   │   └── dynamic_rules.py
+│   ├── layers/     
+│   │   ├── __init__.py
+│   │   ├── authentication.py
+│   │   ├── behavioral.py    # Layer 3: Statistical + Sequence + Policy
+│   │   ├── decision.py      # Layer 4b: Risk classification + RBAC
+│   │   ├── feature_extractor.py
+│   │   ├── fusion.py        # Layer 4a: Score fusion
+│   │   ├── ingestion.py     # Layer 1: Auth + preprocessing
+│   │   ├── learning.py      # Layer 5: Continuous learning
+│   │   └── modeling.py      # Layer 2: Baseline + profiles
+│   ├── models/      # LSTM, statistical, fusion
+│   ├── nodes/         # ROS2 integration
+│   │   ├── __init__.py
+│   │   ├── baseline_manager_node.py
+│   │   └── bbac_main_node.py
+│   │   └── evalutior_node.py
+│   └── util/        # Utilities
+│       ├── --init__.py
+│       ├── config_loader.py
+│       ├── data_loader.py
+│       ├── data_structures.py
+│       ├── data_utils.py
+│       ├── generate_plots.py
+│       └── logger.py
+├── config/        
+│   └── params.yaml
+├── data/            # Dataset (1m samples)
+│   ├── processed/
+│   └── raw/
 ├── launch/          # ROS2 launch files
 ├── msg/             # ROS2 custom messages
-├── src/
-│   ├── core/        # 5 framework layers
-│   │   ├── ingestion.py     # Layer 1: Auth + preprocessing
-│   │   ├── modeling.py      # Layer 2: Baseline + profiles
-│   │   ├── analysis.py      # Layer 3: Statistical + Sequence + Policy
-│   │   ├── fusion.py        # Layer 4a: Score fusion
-│   │   ├── decision.py      # Layer 4b: Risk classification + RBAC
-│   │   └── learning.py      # Layer 5: Continuous learning
-│   ├── models/      # ML models (LSTM - future)
-│   ├── ros/         # ROS2 integration
-│   │   └── bbac_node.py
-│   └── util/        # Utilities
-│       ├── config_loader.py
-│       ├── data_structures.py
-│       ├── evaluator.py
-│       ├── logger.py
-│       └── visualizer.py
 └── tests/           # Unit tests
 ```
+
+## Architecture
+-  system follows a layered architecture:
+- Ingestion Layer
+- Feature Extraction
+- Behavioral Baseline
+- Statistical Detection
+- ML Prediction
+- Fusion Layer
+- Policy Engine (RuBAC)
+- Decision Maker
+
+Each layer is implemented as a modular component.
 
 ## Experiments
 
@@ -217,29 +220,6 @@ Evaluates 6 key ADAPTIVE/DYNAMIC metrics:
 ## Results
 
 All results saved to `results/` with publication-quality figures:
-```
-results/
-├── ablation_study/
-│   ├── figures/
-│   │   ├── roc_ablation.png
-│   │   ├── metrics_ablation.png
-│   │   └── latency_ablation.png
-│   ├── ablation_summary.txt
-│   └── *_results.json
-├── baseline_comparison/
-│   ├── figures/
-│   │   ├── roc_baseline_comparison.png
-│   │   ├── pr_baseline_comparison.png
-│   │   └── metrics_baseline_comparison.png
-│   ├── comparison_summary.txt
-│   └── statistical_comparisons.json
-└── adaptive_evaluation/
-    ├── figures/
-    │   ├── convergence_*.png
-    │   └── sliding_window_comparison.png
-    ├── adaptive_summary.txt
-    └── adaptive_dynamic_results.json
-```
 
 ## Python Version Compatibility
 
@@ -268,14 +248,14 @@ source ~/bbac_ws/install/setup.bash
 
 # Rebuild if needed
 cd ~/bbac_ws
-colcon build --packages-select bbac_framework
+colcon build --packages-select bbac_ics
 ```
 
 ### Permission Denied on Scripts
 ```bash
 # Make scripts executable
 chmod +x experiments/*.py
-chmod +x src/ros/bbac_node.py
+chmod +x src/ros/bbac_main_node.py
 ```
 
 ## Citation
@@ -293,7 +273,7 @@ If you use this framework in your research, please cite:
 
 ## License
 
-MIT License - see LICENSE file for details.
+APACHE 2.0 License - see LICENSE file for details.
 
 ## Contact
 
