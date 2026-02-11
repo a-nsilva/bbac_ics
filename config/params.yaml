@@ -81,10 +81,12 @@ thresholds:
   trust_threshold: 0.8
   min_confidence_for_update: 0.7
   require_grant_for_update: true
-  t1_allow: 0.7
-  t2_mfa: 0.5
-  t3_review: 0.3
-  high_confidence_alert: 0.8   # Threshold para disparar alertas
+  # Decision thresholds (score = legitimacy/confidence)
+  t_min_deny: 0.2         # score < 0.2 → DENY + ALERT (crítico)
+  t1_review: 0.4          # 0.2 ≤ score < 0.4 → MANUAL REVIEW
+  t2_mfa: 0.6             # 0.4 ≤ score < 0.6 → MFA
+  t3_allow: 0.6           # score ≥ 0.6 → ALLOW  
+  high_confidence_alert: 0.8   # Para logs/monitoramento
 
 emergency_defaults:
   severity: high
