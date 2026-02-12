@@ -13,20 +13,17 @@ import argparse
 # Add parent directory to path
 sys.path.insert(0, str(Path(__file__).parent.parent))
 
-from bbac_ics_core.utils.config_loader import ConfigLoader
-
+from bbac_ics_core.utils.data_structures import (
+    AgentRole,
+    ActionType,
+    ResourceType
+)
 
 class DatasetGenerator:
     """Generate synthetic BBAC dataset."""
     
     def __init__(self, config: dict = None, seed: int = 42):
-        """
-        Initialize generator with random seed.
-        
-        Args:
-            config: Configuration dictionary (loaded from params.yaml)
-            seed: Random seed
-        """
+        """Initialize generator with random seed."""
         np.random.seed(seed)
         self.seed = seed
         
@@ -36,20 +33,58 @@ class DatasetGenerator:
         
         self.config = config
         self.paths_config = config.get('paths', {})
+        dataset_config = config.get('dataset_generation', {})
         
-        # Agent configurations
-        self.robot_types = ['assembly_robot', 'transport_robot', 'inspection_robot', 'camera_robot', 'safety_robot']
-        self.human_roles = ['supervisor', 'operator', 'technician']
-        self.actions = ['read', 'write', 'execute', 'delete', 'monitor', 'maintenance', 'calibration', 'diagnostic']
-        self.resources = [
+        # ENUMS - Tipos categóricos do sistema
+        # ============================================================
+        self.robot_types = [
+            AgentRole.ASSEMBLY_ROBOT.value,
+            AgentRole.TRANSPORT_ROBOT.value,
+            AgentRole.INSPECTION_ROBOT.value,
+            AgentRole.CAMERA_ROBOT.value,
+            AgentRole.SAFETY_ROBOT.value,
+        ]
+        
+        self.human_roles = [
+            AgentRole.SUPERVISOR.value,
+            AgentRole.OPERATOR.value,
+            AgentRole.TECHNICIAN.value,
+        ]
+        
+        self.actions = [
+            ActionType.READ.value,
+            ActionType.WRITE.value,
+            ActionType.EXECUTE.value,
+            ActionType.DELETE.value,
+            ActionType.MONITOR.value,
+            ActionType.MAINTENANCE.value,
+            ActionType.CALIBRATION.value,
+            ActionType.DIAGNOSTIC.value,
+        ]
+        
+        self.resource_types = [
+            ResourceType.DATABASE.value,
+            ResourceType.ACTUATOR.value,
+            ResourceType.SENSOR.value,
+            ResourceType.CAMERA.value,
+            ResourceType.SAFETY_SYSTEM.value,
+            ResourceType.ADMIN_PANEL.value,
+        ]
+        
+        # YAML - Específicos do domínio ICS
+        # ============================================================
+        self.resources = dataset_config.get('resources', [
             'database_inventory', 'database_production', 'database_quality',
             'actuator_arm_01', 'actuator_arm_02', 'actuator_gripper_01',
             'sensor_temp_01', 'sensor_pressure_02', 'camera_main',
             'plc_station_a', 'plc_station_b', 'safety_system',
             'admin_panel', 'emergency_controls'
-        ]
-        self.resource_types = ['database', 'actuator', 'sensor', 'camera', 'plc', 'safety_system', 'admin_panel']
-        self.locations = ['assembly_line', 'maintenance_bay', 'warehouse', 'inspection_area', 'control_room']
+        ])
+        
+        self.locations = dataset_config.get('locations', [
+            'assembly_line', 'maintenance_bay', 'warehouse',
+            'inspection_area', 'control_room'
+        ])
     
     def generate(self, num_samples: int, anomaly_rate: float = 0.1) -> pd.DataFrame:
         """
