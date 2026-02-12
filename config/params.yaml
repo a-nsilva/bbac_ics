@@ -97,3 +97,13 @@ emergency_defaults:
   notifications:
     - supervisor
     - security_officer
+
+# Dataset generation configuration
+dataset_generation:
+  total_samples: 100000
+  train_ratio: 0.7
+  val_ratio: 0.15
+  test_ratio: 0.15
+  train_anomaly_rate: 0.05
+  val_anomaly_rate: 0.10
+  test_anomaly_rate: 0.15
