@@ -28,9 +28,20 @@ install(
   DESTINATION lib/${PROJECT_NAME}
 )
 
+install(
+  PROGRAMS
+    bbac_ics_core/experiments/ablation_study.py
+    bbac_ics_core/experiments/adaptive_eval.py
+    bbac_ics_core/experiments/dynamic_rules_test.py
+  DESTINATION lib/${PROJECT_NAME}
+)
+
 rosidl_generate_interfaces(${PROJECT_NAME}
   "msg/AccessDecision.msg"
+  "msg/AccessRequest.msg"          
+  "msg/EmergencyAlert.msg"        
   "msg/LayerDecisionDetail.msg"
+  "msg/LayerOutput.msg"         
   DEPENDENCIES std_msgs
 )
 
