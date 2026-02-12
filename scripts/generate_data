@@ -1,0 +1,393 @@
+#!/usr/bin/env python3
+"""
+BBAC ICS Framework - Dataset Generator
+Generates synthetic dataset for experiments.
+"""
+import sys
+from pathlib import Path
+import pandas as pd
+import numpy as np
+from datetime import datetime, timedelta
+import argparse
+
+# Add parent directory to path
+sys.path.insert(0, str(Path(__file__).parent.parent))
+
+from bbac_ics_core.utils.config_loader import ConfigLoader
+
+
+class DatasetGenerator:
+    """Generate synthetic BBAC dataset."""
+    
+    def __init__(self, config: dict = None, seed: int = 42):
+        """
+        Initialize generator with random seed.
+        
+        Args:
+            config: Configuration dictionary (loaded from params.yaml)
+            seed: Random seed
+        """
+        np.random.seed(seed)
+        self.seed = seed
+        
+        # Load config
+        if config is None:
+            config = ConfigLoader.load()
+        
+        self.config = config
+        self.paths_config = config.get('paths', {})
+        
+        # Agent configurations
+        self.robot_types = ['assembly_robot', 'transport_robot', 'inspection_robot', 'camera_robot', 'safety_robot']
+        self.human_roles = ['supervisor', 'operator', 'technician']
+        self.actions = ['read', 'write', 'execute', 'delete', 'monitor', 'maintenance', 'calibration', 'diagnostic']
+        self.resources = [
+            'database_inventory', 'database_production', 'database_quality',
+            'actuator_arm_01', 'actuator_arm_02', 'actuator_gripper_01',
+            'sensor_temp_01', 'sensor_pressure_02', 'camera_main',
+            'plc_station_a', 'plc_station_b', 'safety_system',
+            'admin_panel', 'emergency_controls'
+        ]
+        self.resource_types = ['database', 'actuator', 'sensor', 'camera', 'plc', 'safety_system', 'admin_panel']
+        self.locations = ['assembly_line', 'maintenance_bay', 'warehouse', 'inspection_area', 'control_room']
+    
+    def generate(self, num_samples: int, anomaly_rate: float = 0.1) -> pd.DataFrame:
+        """
+        Generate synthetic dataset.
+        
+        Args:
+            num_samples: Number of samples to generate
+            anomaly_rate: Proportion of anomalies (0.0 to 1.0)
+            
+        Returns:
+            DataFrame with generated data
+        """
+        print(f"Generating {num_samples:,} samples (anomaly rate: {anomaly_rate:.1%})...")
+        
+        data = []
+        start_time = datetime(2025, 1, 1, 8, 0, 0)
+        
+        # Generate agents
+        num_robots = 50
+        num_humans = 10
+        
+        robot_agents = [f"robot_{rtype}_{i:02d}" 
+                       for rtype in self.robot_types 
+                       for i in range(num_robots // len(self.robot_types))]
+        
+        human_agents = [f"human_{role}_{i:02d}" 
+                       for role in self.human_roles 
+                       for i in range(num_humans // len(self.human_roles))]
+        
+        all_agents = robot_agents + human_agents
+        
+        for i in range(num_samples):
+            # Select agent
+            agent_id = np.random.choice(all_agents)
+            is_robot = agent_id.startswith('robot_')
+            
+            if is_robot:
+                agent_type = 'robot'
+                robot_type = '_'.join(agent_id.split('_')[1:-1])
+                human_role = ''
+            else:
+                agent_type = 'human'
+                robot_type = ''
+                human_role = agent_id.split('_')[1]
+            
+            # Timestamp (sequential with some randomness)
+            time_offset = timedelta(seconds=i * np.random.uniform(5, 60))
+            timestamp = start_time + time_offset
+            
+            # Session ID (changes every ~20 requests)
+            session_id = f"session_{timestamp.strftime('%Y%m%d_%H0000')}_{agent_id}"
+            
+            # Action and resource
+            if is_robot:
+                # Robots have predictable patterns
+                if 'assembly' in robot_type:
+                    action = np.random.choice(['read', 'write', 'execute'], p=[0.3, 0.4, 0.3])
+                    resource = np.random.choice(['actuator_arm_01', 'actuator_arm_02', 'database_production'])
+                elif 'transport' in robot_type:
+                    action = np.random.choice(['read', 'execute'], p=[0.6, 0.4])
+                    resource = np.random.choice(['database_inventory', 'plc_station_a'])
+                elif 'inspection' in robot_type:
+                    action = np.random.choice(['read', 'monitor'], p=[0.5, 0.5])
+                    resource = np.random.choice(['camera_main', 'sensor_temp_01', 'database_quality'])
+                else:
+                    action = np.random.choice(self.actions[:5])
+                    resource = np.random.choice(self.resources)
+            else:
+                # Humans have more varied patterns
+                if human_role == 'supervisor':
+                    action = np.random.choice(['read', 'write', 'execute', 'monitor'], p=[0.3, 0.2, 0.2, 0.3])
+                    resource = np.random.choice(self.resources)
+                elif human_role == 'operator':
+                    action = np.random.choice(['read', 'write', 'execute'], p=[0.4, 0.3, 0.3])
+                    resource = np.random.choice(self.resources[:10])
+                else:  # technician
+                    action = np.random.choice(['maintenance', 'calibration', 'diagnostic', 'read'], p=[0.3, 0.3, 0.2, 0.2])
+                    resource = np.random.choice(self.resources)
+            
+            # Resource type
+            if 'database' in resource:
+                resource_type = 'database'
+            elif 'actuator' in resource:
+                resource_type = 'actuator'
+            elif 'sensor' in resource:
+                resource_type = 'sensor'
+            elif 'camera' in resource:
+                resource_type = 'camera'
+            elif 'plc' in resource:
+                resource_type = 'plc'
+            elif 'safety' in resource:
+                resource_type = 'safety_system'
+            else:
+                resource_type = 'admin_panel'
+            
+            # Location
+            if is_robot:
+                if 'assembly' in robot_type:
+                    location = 'assembly_line'
+                elif 'transport' in robot_type:
+                    location = 'warehouse'
+                elif 'inspection' in robot_type:
+                    location = 'inspection_area'
+                else:
+                    location = np.random.choice(self.locations)
+            else:
+                location = np.random.choice(self.locations)
+            
+            # Context flags
+            human_present = not is_robot or np.random.random() < 0.3
+            emergency_flag = np.random.random() < 0.02  # 2% emergency
+            
+            # Authentication
+            auth_status = 'success'
+            attempt_count = 1
+            
+            # Previous action (for sequence analysis)
+            if i > 0 and data[-1]['session_id'] == session_id:
+                previous_action = data[-1]['action']
+            else:
+                previous_action = ''
+            
+            # Determine if anomaly
+            is_anomaly = np.random.random() < anomaly_rate
+            
+            if is_anomaly:
+                # Inject anomaly
+                anomaly_type = np.random.choice([
+                    'privilege_escalation',
+                    'unauthorized_resource',
+                    'high_frequency',
+                    'auth_failure'
+                ])
+                
+                if anomaly_type == 'privilege_escalation':
+                    # Robot trying admin actions
+                    if is_robot:
+                        action = np.random.choice(['delete', 'execute'])
+                        resource = np.random.choice(['admin_panel', 'safety_system', 'emergency_controls'])
+                
+                elif anomaly_type == 'unauthorized_resource':
+                    # Access to unrelated resource
+                    resource = np.random.choice(['admin_panel', 'emergency_controls', 'safety_system'])
+                
+                elif anomaly_type == 'high_frequency':
+                    # Multiple failed attempts
+                    attempt_count = np.random.randint(3, 6)
+                
+                elif anomaly_type == 'auth_failure':
+                    auth_status = 'failed'
+                    attempt_count = np.random.randint(2, 5)
+            
+            # Ground truth
+            if auth_status == 'failed':
+                ground_truth = 'deny'
+            elif attempt_count > 3:
+                ground_truth = 'deny'
+            elif is_anomaly:
+                ground_truth = np.random.choice(['deny', 'review'], p=[0.7, 0.3])
+            elif emergency_flag and not human_present and action in ['write', 'execute', 'delete']:
+                ground_truth = 'deny'
+            elif attempt_count > 2:
+                ground_truth = 'mfa'
+            else:
+                ground_truth = 'allow'
+            
+            # Policy ID
+            if is_robot:
+                policy_id = f"robot_{action}_policy"
+            else:
+                policy_id = f"{human_role}_{action}_policy"
+            
+            # Add sample
+            sample = {
+                'log_id': f"log_{timestamp.strftime('%Y%m%d_%H%M%S')}_{i:06d}_{agent_id}",
+                'timestamp': timestamp.isoformat(),
+                'session_id': session_id,
+                'agent_id': agent_id,
+                'agent_type': agent_type,
+                'robot_type': robot_type,
+                'human_role': human_role,
+                'action': action,
+                'resource': resource,
+                'resource_type': resource_type,
+                'human_present': human_present,
+                'emergency_flag': emergency_flag,
+                'location': location,
+                'previous_action': previous_action,
+                'auth_status': auth_status,
+                'attempt_count': attempt_count,
+                'policy_id': policy_id,
+                'ground_truth': ground_truth,
+            }
+            
+            data.append(sample)
+            
+            if (i + 1) % 10000 == 0:
+                print(f"  Generated {i + 1:,} samples...")
+        
+        df = pd.DataFrame(data)
+        
+        # Print statistics
+        print(f"\n✓ Generated {len(df):,} samples")
+        print(f"  - Agents: {df['agent_id'].nunique()}")
+        print(f"  - Sessions: {df['session_id'].nunique()}")
+        print(f"  - Ground truth distribution:")
+        for gt, count in df['ground_truth'].value_counts().items():
+            print(f"    {gt}: {count:,} ({count/len(df)*100:.1f}%)")
+        
+        return df
+    
+    def generate_splits(
+        self,
+        total_samples: int = None,
+        train_ratio: float = None,
+        val_ratio: float = None,
+        test_ratio: float = None,
+        output_dir: str = None
+    ):
+        """
+        Generate train/validation/test splits.
+        
+        Args:
+            total_samples: Total number of samples (from config or default)
+            train_ratio: Proportion for training (from config or default)
+            val_ratio: Proportion for validation (from config or default)
+            test_ratio: Proportion for testing (from config or default)
+            output_dir: Output directory (from config or default)
+        """
+        # Get dataset generation config (use defaults if not in config)
+        dataset_config = self.config.get('dataset_generation', {})
+        
+        # Use config values or provided args or defaults
+        total_samples = total_samples or dataset_config.get('total_samples', 100000)
+        train_ratio = train_ratio or dataset_config.get('train_ratio', 0.7)
+        val_ratio = val_ratio or dataset_config.get('val_ratio', 0.15)
+        test_ratio = test_ratio or dataset_config.get('test_ratio', 0.15)
+        output_dir = output_dir or self.paths_config.get('data_dir', 'data/raw')
+        
+        output_path = Path(output_dir)
+        output_path.mkdir(parents=True, exist_ok=True)
+        
+        # Calculate split sizes
+        train_size = int(total_samples * train_ratio)
+        val_size = int(total_samples * val_ratio)
+        test_size = total_samples - train_size - val_size
+        
+        # Anomaly rates from config or defaults
+        train_anomaly_rate = dataset_config.get('train_anomaly_rate', 0.05)
+        val_anomaly_rate = dataset_config.get('val_anomaly_rate', 0.10)
+        test_anomaly_rate = dataset_config.get('test_anomaly_rate', 0.15)
+        
+        print(f"\nGenerating dataset splits:")
+        print(f"  Train: {train_size:,} ({train_ratio:.0%}) - anomaly rate: {train_anomaly_rate:.1%}")
+        print(f"  Validation: {val_size:,} ({val_ratio:.0%}) - anomaly rate: {val_anomaly_rate:.1%}")
+        print(f"  Test: {test_size:,} ({test_ratio:.0%}) - anomaly rate: {test_anomaly_rate:.1%}")
+        print()
+        
+        # Generate splits
+        train_df = self.generate(train_size, anomaly_rate=train_anomaly_rate)
+        val_df = self.generate(val_size, anomaly_rate=val_anomaly_rate)
+        test_df = self.generate(test_size, anomaly_rate=test_anomaly_rate)
+        
+        # Get filenames from config
+        train_filename = self.paths_config.get('train_file', 'trainer.csv')
+        val_filename = self.paths_config.get('validation_file', 'validation.csv')
+        test_filename = self.paths_config.get('test_file', 'test.csv')
+        
+        # Save
+        train_file = output_path / train_filename
+        val_file = output_path / val_filename
+        test_file = output_path / test_filename
+        
+        train_df.to_csv(train_file, index=False)
+        val_df.to_csv(val_file, index=False)
+        test_df.to_csv(test_file, index=False)
+        
+        print(f"\n✓ Datasets saved:")
+        print(f"  {train_file}")
+        print(f"  {val_file}")
+        print(f"  {test_file}")
+
+
+def main():
+    """Main entry point."""
+    parser = argparse.ArgumentParser(description='Generate BBAC synthetic dataset')
+    parser.add_argument(
+        '--total-samples',
+        type=int,
+        help='Total number of samples (default: from config or 100000)'
+    )
+    parser.add_argument(
+        '--train-ratio',
+        type=float,
+        help='Training set ratio (default: from config or 0.7)'
+    )
+    parser.add_argument(
+        '--val-ratio',
+        type=float,
+        help='Validation set ratio (default: from config or 0.15)'
+    )
+    parser.add_argument(
+        '--test-ratio',
+        type=float,
+        help='Test set ratio (default: from config or 0.15)'
+    )
+    parser.add_argument(
+        '--output-dir',
+        type=str,
+        help='Output directory (default: from config or data/raw)'
+    )
+    parser.add_argument(
+        '--seed',
+        type=int,
+        default=42,
+        help='Random seed (default: 42)'
+    )
+    
+    args = parser.parse_args()
+    
+    print("=" * 60)
+    print("BBAC DATASET GENERATOR")
+    print("=" * 60)
+    
+    generator = DatasetGenerator(seed=args.seed)
+    
+    generator.generate_splits(
+        total_samples=args.total_samples,
+        train_ratio=args.train_ratio,
+        val_ratio=args.val_ratio,
+        test_ratio=args.test_ratio,
+        output_dir=args.output_dir
+    )
+    
+    print("\n" + "=" * 60)
+    print("✓ Dataset generation complete!")
+    print("=" * 60)
+
+
+if __name__ == '__main__':
+    main()
