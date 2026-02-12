@@ -63,7 +63,7 @@ class AdaptiveEvaluation:
     def _test_convergence(self) -> Dict:
         """Test how quickly baseline converges."""
         
-        data_loader = DataLoader(self.config)
+        data_loader = DataLoader()
         df = data_loader.load_split('train')
         
         # Select single agent
@@ -240,4 +240,5 @@ def main():
 
 if __name__ == '__main__':
     main()
+
 
