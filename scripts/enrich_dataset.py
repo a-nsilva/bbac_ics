@@ -37,17 +37,35 @@ def enrich_dataset(df):
     
     # 4. GROUND_TRUTH
     def label_gt(row):
-        # Anomalias = deny
-        if row['auth_status'] == 'failed':
-            return 'deny'
-        if row['attempt_count'] > 3:
-            return 'deny'
-        if row['emergency_flag'] and not row['human_present'] and row['action'] in ['write', 'execute']:
-            return 'deny'
-        # Legítimo = grant
-        return 'grant'
+    """Lógica mais realista baseada no fluxograma"""
+    
+    # Deny imediato
+    if row['attempt_count'] >= 5:
+        return 'deny'
+    if row['emergency_flag'] and not row['human_present'] and row['action'] == 'execute':
+        return 'deny'
+    
+    # MFA requerido
+    if row['attempt_count'] in [3, 4]:
+        return 'mfa'
+    if row['auth_status'] == 'failed' and row['attempt_count'] <= 2:
+        return 'mfa'
+    
+    # Review manual
+    if row['emergency_flag'] and row['action'] == 'write':
+        return 'review'
+    
+    # Allow
+    return 'allow'
     
     df['ground_truth'] = df.apply(label_gt, axis=1)
+    df['stat_score'] = np.random.uniform(0.1, 0.9, len(df))
+    df['ml_score'] = np.random.uniform(0.1, 0.9, len(df))
+    df['policy_score'] = np.random.uniform(0.1, 0.9, len(df))
+    # Ajustar scores baseado em ground_truth para consistência
+    df.loc[df['ground_truth'] == 'deny', 'stat_score'] *= 0.3  # Scores baixos
+    df.loc[df['ground_truth'] == 'allow', 'stat_score'] *= 1.5  # Scores altos
+    # Repetir para ml_score e policy_score
     
     return df
 
