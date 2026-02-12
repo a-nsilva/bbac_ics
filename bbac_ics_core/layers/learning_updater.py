@@ -3,12 +3,13 @@
 BBAC ICS Framework - Continuous Learning Layer
 Updates baselines and models with trusted samples.
 """
+
 import pandas as pd
 from pathlib import Path
 from typing import List, Dict
 from collections import defaultdict
 from ..utils.data_structures import AccessRequest, AccessDecision
-from ..layers.behavioral_baseline import BaselineManager
+from ..layers.baseline_manager import BaselineManager
 from ..models.lstm_predictor import LSTMPredictor
 from ..utils.config_loader import ConfigLoader
 
@@ -198,3 +199,4 @@ class LearningUpdater:
         
         # Clear quarantine
         self.quarantine = []
+
