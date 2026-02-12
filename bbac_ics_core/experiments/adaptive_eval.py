@@ -64,6 +64,7 @@ class AdaptiveEvaluation:
         """Test how quickly baseline converges."""
         
         data_loader = DataLoader()
+        data_loader.load_all() 
         df = data_loader.load_split('train')
         
         # Select single agent
@@ -240,5 +241,6 @@ def main():
 
 if __name__ == '__main__':
     main()
+
 
 
