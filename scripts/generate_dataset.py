@@ -13,6 +13,7 @@ import argparse
 # Add parent directory to path
 sys.path.insert(0, str(Path(__file__).parent.parent))
 
+from bbac_ics_core.utils.config_loader import ConfigLoader
 from bbac_ics_core.utils.data_structures import (
     AgentRole,
     ActionType,
