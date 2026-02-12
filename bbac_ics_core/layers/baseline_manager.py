@@ -119,8 +119,12 @@ class BaselineManager:
         
         # Temporal gaps (assuming float timestamps)
         time_diffs = df["timestamp"].diff().dropna()
-        stats["mean_gap"] = float(time_diffs.mean()) if not time_diffs.empty else 0.0
-        stats["std_gap"] = float(time_diffs.std()) if not time_diffs.empty else 0.0
+        mean_gap = time_diffs.mean() if not time_diffs.empty else 0.0
+        std_gap = time_diffs.std() if not time_diffs.empty else 0.0
+        #stats["mean_gap"] = float(time_diffs.mean()) if not time_diffs.empty else 0.0
+        #stats["std_gap"] = float(time_diffs.std()) if not time_diffs.empty else 0.0
+        stats["mean_gap"] = mean_gap.total_seconds() if hasattr(mean_gap, 'total_seconds') else float(mean_gap)
+        stats["std_gap"] = std_gap.total_seconds() if hasattr(std_gap, 'total_seconds') else float(std_gap)    
         
         # Human presence probability
         stats["human_presence_prob"] = float(df["human_present"].mean())
@@ -217,4 +221,5 @@ class BaselineManager:
         
         with open(filepath, 'rb') as f:
             self.baselines = pickle.load(f)
+
 
