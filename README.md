@@ -84,7 +84,7 @@ ros2 pkg list | grep bbac_ics
 python3 -c "import numpy, scipy, pandas, sklearn, matplotlib, seaborn, plotly; print('✓ All dependencies OK')"
 
 # Validate system
-python scripts/validate_system.py
+python3 scripts/validate_system.py
 ```
 
 ## Usage
