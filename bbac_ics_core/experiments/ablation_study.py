@@ -71,6 +71,7 @@ class AblationStudy:
         
         # Load dataset
         data_loader = DataLoader()
+        data_loader.load_all() 
         df = data_loader.load_split(dataset_split)
         df = ingest_batch(df)
         
@@ -283,6 +284,7 @@ def main():
 
 if __name__ == '__main__':
     main()
+
 
 
 
