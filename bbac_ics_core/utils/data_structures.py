@@ -373,9 +373,17 @@ class AccessRequest:
     @classmethod
     def from_raw(cls, raw: Dict[str, Any]) -> "AccessRequest":
         agent_type = AgentType.from_string(raw["agent_type"])
+        timestamp_raw = raw.get("timestamp", time.time())
+        if isinstance(timestamp_raw, (int, float)):
+            timestamp = float(timestamp_raw)
+        elif hasattr(timestamp_raw, 'timestamp'):  # pd.Timestamp
+            timestamp = timestamp_raw.timestamp()
+        else:
+            timestamp = float(timestamp_raw)
+        
         return cls(
             request_id=raw["request_id"],
-            timestamp=float(raw.get("timestamp", time.time())),
+            timestamp=timestamp, 
             agent_id=raw["agent_id"],
 
             agent_type=agent_type,
