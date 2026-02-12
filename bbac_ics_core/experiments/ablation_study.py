@@ -99,7 +99,7 @@ class AblationStudy:
             # Print summary
             metrics = result['metrics']
             print(f"Accuracy: {metrics['accuracy']:.4f}")
-            print(f"F1 Score: {metrics['f1']:.4f}")
+            print(f"F1 Score: {metrics['f1_score']:.4f}")
             print(f"Latency (mean): {metrics['latency']['mean']:.2f} ms")
         
         # Save results
@@ -286,6 +286,7 @@ def main():
 
 if __name__ == '__main__':
     main()
+
 
 
 
