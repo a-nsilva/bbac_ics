@@ -17,7 +17,7 @@ from ..utils.data_structures import (
 from ..utils.config_loader import ConfigLoader
 from ..utils.data_loader import DataLoader
 from ..layers.ingestion import ingest_batch
-from ..layers.behavioral_baseline import BaselineManager
+from ..layers.baseline_manager import BaselineManager
 from ..layers.feature_extractor import FeatureExtractor
 from ..models.statistical_detector import StatisticalDetector
 from ..models.lstm_predictor import LSTMPredictor
@@ -282,3 +282,4 @@ def main():
 
 if __name__ == '__main__':
     main()
+
