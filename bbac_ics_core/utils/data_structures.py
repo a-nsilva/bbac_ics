@@ -587,12 +587,12 @@ class ExperimentConfig:
     name: str
     scenario: str
     max_requests: int
+    output_dir: str    
     enable_behavioral: bool = True
     enable_ml: bool = True
     use_real_dataset: bool = True
     dataset_split: str = 'test'  # 'train', 'validation', 'test'
     save_results: bool = True
-    output_dir: str
 
 @dataclass 
 class ExperimentResult:
