@@ -2,7 +2,7 @@
 
 from .authentication import AuthenticationModule
 from .ingestion import ingest_single, ingest_batch
-from .behavioral_baseline import BaselineManager
+from .baseline_manager import BaselineManager 
 from .feature_extractor import FeatureExtractor
 from .policy_engine import PolicyEngine
 from .fusion_layer import FusionLayer
