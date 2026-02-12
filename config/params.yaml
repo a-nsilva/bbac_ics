@@ -97,7 +97,7 @@ emergency_defaults:
   notifications:
     - supervisor
     - security_officer
-
+    
 # Dataset generation configuration
 dataset_generation:
   total_samples: 100000
@@ -107,3 +107,27 @@ dataset_generation:
   train_anomaly_rate: 0.05
   val_anomaly_rate: 0.10
   test_anomaly_rate: 0.15
+  
+  # Specific resources for ICS domain
+  resources:
+    - database_inventory
+    - database_production
+    - database_quality
+    - actuator_arm_01
+    - actuator_arm_02
+    - actuator_gripper_01
+    - sensor_temp_01
+    - sensor_pressure_02
+    - camera_main
+    - plc_station_a
+    - plc_station_b
+    - safety_system
+    - admin_panel
+    - emergency_controls
+  
+  locations:
+    - assembly_line
+    - maintenance_bay
+    - warehouse
+    - inspection_area
+    - control_room
