@@ -133,7 +133,7 @@ class DataLoader:
             logger.warning(f"File not found: {filepath}")
             return pd.DataFrame()
         
-        df = pd.read_csv(filepath)
+        df = pd.read_csv(filepath, low_memory=False)
         
         # Parse timestamps if present
         if 'timestamp' in df.columns:
