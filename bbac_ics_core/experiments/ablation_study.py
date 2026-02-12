@@ -154,7 +154,9 @@ class AblationStudy:
         decision_maker = DecisionMaker(self.config.get('thresholds'))
         
         # Build baselines from training data
-        train_df = DataLoader(self.config).load_split('train')
+        data_loader = DataLoader()
+        data_loader.load_all()
+        train_df = data_loader.load_split('train')
         for agent_id in df['agent_id'].unique():
             agent_data = train_df[train_df['agent_id'] == agent_id]
             if not agent_data.empty:
@@ -284,6 +286,7 @@ def main():
 
 if __name__ == '__main__':
     main()
+
 
 
 
