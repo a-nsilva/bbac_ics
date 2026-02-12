@@ -34,7 +34,9 @@ class BaselineManager:
         self.baselines: Dict[str, Dict] = {}
         
         # Paths
-        profiles_dir = Path(config.get('profiles_dir', 'profiles'))
+        #profiles_dir = Path(config.get('profiles_dir', 'profiles'))
+        profiles_path = config.get('profiles_dir', 'profiles')
+        self.profiles_dir = Path(profiles_path) if isinstance(profiles_path, str) else Path('profiles')
         profiles_dir.mkdir(exist_ok=True)
         self.profiles_dir = profiles_dir
     
@@ -215,3 +217,4 @@ class BaselineManager:
         
         with open(filepath, 'rb') as f:
             self.baselines = pickle.load(f)
+
