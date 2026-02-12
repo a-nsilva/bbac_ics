@@ -10,9 +10,9 @@ from pathlib import Path
 import json
 import matplotlib.pyplot as plt
 
+from ..layers.baseline_manager import BaselineManager
 from ..utils.config_loader import ConfigLoader
 from ..utils.data_loader import DataLoader
-from ..layers.behavioral_baseline import BaselineManager
 from .metrics_calculator import MetricsCalculator
 
 
@@ -240,3 +240,4 @@ def main():
 
 if __name__ == '__main__':
     main()
+
