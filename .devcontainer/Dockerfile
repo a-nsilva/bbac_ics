@@ -14,6 +14,8 @@ RUN apt-get update && apt-get install -y \
     git \
     && rm -rf /var/lib/apt/lists/* 
 
+RUN pip3 install --upgrade pip setuptools wheel
+
 RUN rosdep init || true \
  && rosdep fix-permissions \
  && rosdep update
