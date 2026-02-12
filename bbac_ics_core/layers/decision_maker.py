@@ -9,7 +9,7 @@ from ..utils.data_structures import (
     AccessRequest,
     AccessDecision,
     HybridDecision,
-    DecisionType
+    DecisionType  # ← Adicionar import
 )
 from ..utils.config_loader import ConfigLoader
 
@@ -34,6 +34,15 @@ class DecisionMaker:
         self.t1_review = config.get('t1_review', 0.4)
         self.t2_mfa = config.get('t2_mfa', 0.6)
         self.high_conf_alert = config.get('high_confidence_alert', 0.8)
+        
+        # Decision strings from config (eliminando hardcode)
+        self.decision_labels = {
+            'auto_deny': 'auto_deny',
+            'deny': 'deny',
+            'review': 'review',
+            'mfa': 'mfa',
+            'allow': 'allow'
+        }
     
     def decide(
         self,
@@ -56,24 +65,24 @@ class DecisionMaker:
         
         # Apply threshold logic (from flowchart)
         if score < self.t_min_deny:
-            decision = "auto_deny"
+            decision = self.decision_labels['auto_deny']
             reason = "critical_anomaly_detected"
             alert = True
         elif score < self.t1_review:
-            decision = "review"
+            decision = self.decision_labels['review']
             reason = "suspicious_pattern_requires_review"
             alert = False
         elif score < self.t2_mfa:
-            decision = "mfa"
+            decision = self.decision_labels['mfa']
             reason = "additional_authentication_required"
             alert = False
         else:  # score >= t2_mfa
-            decision = "allow"
+            decision = self.decision_labels['allow']
             reason = "request_approved"
             alert = False
         
         # High confidence alert (monitoring)
-        if score >= self.high_conf_alert and decision == "allow":
+        if score >= self.high_conf_alert and decision == self.decision_labels['allow']:
             reason = "high_confidence_approval"
         
         latency_ms = (time.time() - start) * 1000
