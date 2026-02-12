@@ -104,7 +104,8 @@ class AdaptiveEvaluation:
     def _test_sliding_window(self) -> Dict:
         """Test 70/30 weighting effectiveness."""
         
-        data_loader = DataLoader(self.config)
+        data_loader = DataLoader()
+        data_loader.load_all() 
         df = data_loader.load_split('train')
         
         agent_id = df['agent_id'].iloc[0]
@@ -149,7 +150,8 @@ class AdaptiveEvaluation:
         """Test adaptation to behavioral drift."""
         
         # Simulate drift: change action distribution halfway through
-        data_loader = DataLoader(self.config)
+        data_loader = DataLoader()
+        data_loader.load_all() 
         df = data_loader.load_split('train')
         
         agent_id = df['agent_id'].iloc[0]
@@ -241,6 +243,7 @@ def main():
 
 if __name__ == '__main__':
     main()
+
 
 
 
