@@ -33,7 +33,7 @@ LatencyMS = float   # milliseconds
 # ============================================================================
 
 class AgentType(Enum):
-    """Type of agent (robot vs human)."""
+    """Type of agent (robot vs human)"""
     ROBOT = "robot"
     HUMAN = "human"
     
@@ -295,6 +295,15 @@ class RequestFrequency(Enum):
             return cls[frequency.upper()]
         except KeyError:
             return cls.MEDIUM
+
+
+class DecisionOutput(Enum):
+    """Final decision outputs from DecisionMaker."""
+    ALLOW = "allow"
+    MFA = "mfa"
+    REVIEW = "review"
+    DENY = "deny"
+    AUTO_DENY = "auto_deny"
 
 
 # ============================================================================
@@ -664,7 +673,7 @@ class ThresholdsConfig:
   use_confidence_weighted: bool = True
   min_confidence_for_auto: float = 0.9
 
-    
+
 __all__ = [
     # Type aliases
     'AgentID',
@@ -687,6 +696,7 @@ __all__ = [
     'FusionStrategy',
     'ResourceType',
     'RequestFrequency',
+    'DecisionOutput',
 
     # Dataclasses
     'AgentConfig', 
@@ -702,4 +712,12 @@ __all__ = [
     'StatisticalTest',
     'ExperimentConfig',
     'ExperimentResult',
+    'BaselineConfig',
+    'FusionConfig',
+    'LearningConfig',
+    'PolicyConfig',
+    'ROSConfig',
+    'PathsConfig',
+    'EngineConfig',
+    'ThresholdsConfig',
 ]
