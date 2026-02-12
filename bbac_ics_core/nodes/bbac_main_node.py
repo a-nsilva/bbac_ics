@@ -15,18 +15,19 @@ from bbac_ics_msgs.msg import (
     LayerOutput
 )
 
-from ..utils.data_structures import AccessRequest, AccessDecision
-from ..utils.config_loader import ConfigLoader
+
 from ..layers.authentication import AuthenticationModule
-from ..layers.ingestion import ingest_single
-from ..layers.behavioral_baseline import BaselineManager
-from ..layers.feature_extractor import FeatureExtractor
-from ..models.statistical_detector import StatisticalDetector
-from ..models.lstm_predictor import LSTMPredictor
-from ..layers.policy_engine import PolicyEngine
-from ..layers.fusion_layer import FusionLayer
+from ..layers.baseline_manager import BaselineManager
 from ..layers.decision_maker import DecisionMaker
+from ..layers.feature_extractor import FeatureExtractor
+from ..layers.fusion_layer import FusionLayer
+from ..layers.ingestion import ingest_single
 from ..layers.learning_updater import LearningUpdater
+from ..layers.policy_engine import PolicyEngine
+from ..models.lstm_predictor import LSTMPredictor
+from ..models.statistical_detector import StatisticalDetector
+from ..utils.config_loader import ConfigLoader
+from ..utils.data_structures import AccessRequest, AccessDecision
 
 
 class BBACMainNode(Node):
@@ -280,3 +281,4 @@ def main(args=None):
 
 if __name__ == '__main__':
     main()
+
