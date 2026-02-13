@@ -110,7 +110,7 @@ class FusionLayer:
             confidence=confidence,
             fusion_strategy=strategy,
             layer_results=layer_decisions,
-            total_latency_ms=latency_me,
+            total_latency_ms=latency_ms,
             explanation={
                 "method": self.method,
                 "weights": self.weights,
@@ -229,4 +229,5 @@ class FusionLayer:
             return {}
         
         return self.ensemble.get_feature_importance()
+
 
