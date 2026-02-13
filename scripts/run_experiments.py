@@ -252,19 +252,32 @@ def run_all_experiments(output_dir: str = 'results', train_ensemble: bool = Fals
             with open(adaptive_file) as f:
                 adaptive_data = json.load(f)
             
-            # Mock data for drift plot (idealmente extrair de adaptive_results)
-            timestamps = list(range(10))
-            baseline_vals = [1.0] * 5 + [0.9] * 5  # Simulated drift
-            current_vals = [1.0] * 5 + [0.7] * 5
+            # A) Baseline convergence plot
+            convergence_data = adaptive_data.get('convergence', {}).get('metrics', [])
+            if convergence_data:
+                window_sizes = [m['window_size'] for m in convergence_data]
+                stability_scores = [1.0 - m['stability'] for m in convergence_data]
+                
+                plots.plot_adaptive_drift(
+                    timestamps=window_sizes,
+                    baseline_values=[0.8] * len(window_sizes),
+                    current_values=stability_scores,
+                    title='Baseline Convergence - Stability Over Window Size',
+                    filename='baseline_convergence.png'
+                )
+                logger.info("✓ Baseline convergence plot generated")
             
-            plots.plot_adaptive_drift(
-                timestamps,
-                baseline_vals,
-                current_vals,
-                title='Baseline Adaptation - Drift Detection',
-                filename='adaptive_drift.png'
-            )
-            logger.info("✓ Adaptive drift plot generated")
+            # B) Drift detection plot
+            drift_data = adaptive_data.get('drift_adaptation', {})
+            if 'action_drift' in drift_data:
+                drift_score = drift_data['action_drift']
+                
+                plots.plot_drift_detection(
+                    drift_score=drift_score,
+                    threshold=0.15,
+                    filename='drift_detection.png'
+                )
+                logger.info(f"✓ Drift detection plot generated (KL={drift_score:.4f})")
             
         plots.close_all()
         logger.info(f"✓ All plots saved to: {output_path / 'figures'}")
