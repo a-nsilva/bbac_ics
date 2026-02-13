@@ -40,7 +40,7 @@ fusion:
   
   # Meta-classifier settings
   use_meta_classifier: false
-  meta_classifier_model: logistic_regression  # option: 'xgboost'
+  meta_classifier_model: logistic_regression  # 'logistic_regression' or 'xgboost'
 
 ml_params:
   statistical:
