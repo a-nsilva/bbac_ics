@@ -60,7 +60,8 @@ class FusionLayer:
         Returns:
             HybridDecision with final score and decision
         """
-        start = time.time()
+        #start = time.time()
+        start = time.perf_counter()
         
         # Map layer names to weight keys
         layer_map = {
@@ -99,7 +100,8 @@ class FusionLayer:
         confidences = [ld.confidence for ld in layer_decisions.values()]
         confidence = sum(confidences) / len(confidences) if confidences else 0.5
         
-        total_latency = (time.time() - start) * 1000
+        #latency_ms = (time.time() - start) * 1000
+        latency_ms = (time.perf_counter() - start) * 1000
         
         return HybridDecision(
             request_id=request_id,
@@ -108,7 +110,7 @@ class FusionLayer:
             confidence=confidence,
             fusion_strategy=strategy,
             layer_results=layer_decisions,
-            total_latency_ms=total_latency,
+            total_latency_ms=latency_me,
             explanation={
                 "method": self.method,
                 "weights": self.weights,
@@ -227,3 +229,4 @@ class FusionLayer:
             return {}
         
         return self.ensemble.get_feature_importance()
+
