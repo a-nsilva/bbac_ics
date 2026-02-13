@@ -58,8 +58,26 @@ def train_ensemble_model(output_dir: Path):
     ground_truth = []
     
     for idx, row in train_df.iterrows():
+        #from bbac_ics_core.layers.ingestion import ingest_single
+        #request = ingest_single(row.to_dict())
+        raw_dict = {
+            'request_id': row.get('log_id', f"req_{idx}"),
+            'timestamp': row.get('timestamp', 0.0),
+            'agent_id': row['agent_id'],
+            'agent_type': row['agent_type'],
+            'agent_role': row.get('robot_type', row.get('human_role', 'unknown')),
+            'action': row['action'],
+            'resource': row['resource'],
+            'resource_type': row['resource_type'],
+            'location': row['location'],
+            'human_present': row.get('human_present', False),
+            'emergency': row.get('emergency_flag', False),
+            'auth_status': row.get('auth_status', 'success'),
+            'attempt_count': row.get('attempt_count', 0),
+        }
+        
         from bbac_ics_core.layers.ingestion import ingest_single
-        request = ingest_single(row.to_dict())
+        request = ingest_single(raw_dict)
         
         # Get layer scores
         policy_dec = policy_engine.analyze(request)
