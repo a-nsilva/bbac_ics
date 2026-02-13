@@ -538,6 +538,10 @@ class ClassificationMetrics:
                 "fp": self.fp,
                 "fn": self.fn,
             },
+            "fpr": self.fpr,                  
+            "tpr": self.tpr,                   
+            "precision_curve": self.precision_curve,  
+            "recall_curve": self.recall_curve,      
         }
 
 @dataclass
