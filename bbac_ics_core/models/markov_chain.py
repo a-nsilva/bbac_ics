@@ -59,7 +59,8 @@ class MarkovChain:
         Returns:
             LayerDecision with score and decision
         """
-        start = time.time()
+        #start = time.time()
+        start = time.perf_counter()
         
         # Get agent's action sequence
         agent_id = request.agent_id
@@ -84,7 +85,8 @@ class MarkovChain:
         
         decision = "grant" if score >= self.anomaly_threshold else "deny"
         
-        latency_ms = (time.time() - start) * 1000
+        #latency_ms = (time.time() - start) * 1000
+        latency_ms = (time.perf_counter() - start) * 1000
         
         return LayerDecision(
             layer_name="sequence",
