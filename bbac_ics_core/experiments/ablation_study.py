@@ -65,9 +65,9 @@ class AblationStudy:
         Returns:
             Results dictionary
         """
-        print("=" * 60)
+        print("=" * 50)
         print("ABLATION STUDY")
-        print("=" * 60)
+        print("=" * 50)
         
         # Load dataset
         data_loader = DataLoader()
@@ -89,9 +89,9 @@ class AblationStudy:
         results = {}
         
         for config in configs:
-            print(f"\n{'-' * 60}")
+            print(f"\n{'-' * 50}")
             print(f"Configuration: {config['name']}")
-            print(f"{'-' * 60}")
+            print(f"{'-' * 50}")
             
             result = self._run_configuration(df, config)
             results[config['name']] = result
@@ -100,7 +100,7 @@ class AblationStudy:
             metrics = result['metrics']
             print(f"Accuracy: {metrics['accuracy']:.4f}")
             print(f"F1 Score: {metrics['f1_score']:.4f}")
-            print(f"Latency (mean): {metrics['latency']['mean']:.2f} ms")
+            print(f"Latency (mean): {metrics['latency']['mean']:.4f} ms")
         
         # Save results
         self._save_results(results)
@@ -218,7 +218,13 @@ class AblationStudy:
             ground_truth.append(gt)
             latencies.append(final_decision.latency_ms)
             scores.append(hybrid_decision.score) 
-        
+
+        # DEBUG: Print sample data
+        print(f"\n[DEBUG] Sample latencies: {latencies[:10]}")
+        print(f"[DEBUG] Sample scores: {scores[:10]}")
+        print(f"[DEBUG] Latency stats: min={min(latencies):.4f}, max={max(latencies):.4f}, mean={np.mean(latencies):.4f}")
+        print(f"[DEBUG] Score stats: min={min(scores):.4f}, max={max(scores):.4f}, unique={len(set(scores))}")
+
         # Calculate metrics with scores for ROC/PR curves
         metrics = self.metrics_calc.calculate_classification_metrics(
             ground_truth,
@@ -280,13 +286,13 @@ class AblationStudy:
     
     def _generate_comparison(self, results: Dict):
         """Generate comparison table."""
-        print("\n" + "=" * 80)
+        print("\n" + "=" * 50)
         print("ABLATION COMPARISON")
-        print("=" * 80)
+        print("=" * 50)
         
         # Header
         print(f"{'Configuration':<20} {'Accuracy':<12} {'F1':<12} {'Latency (ms)':<15}")
-        print("-" * 80)
+        print("-" * 50)
         
         # Rows
         for config_name, result in results.items():
@@ -307,14 +313,3 @@ def main():
 
 if __name__ == '__main__':
     main()
-
-
-
-
-
-
-
-
-
-
-
