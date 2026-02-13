@@ -51,7 +51,6 @@ class DataLoader:
     # ==========================================================
     # Dataset validation
     # ==========================================================
-
     def _validate_dataset(self):
         required_files = [
             self.paths_config.trainer_file,
@@ -73,7 +72,6 @@ class DataLoader:
     # ==========================================================
     # Loading
     # ==========================================================
-
     def load_all(self) -> bool:
         try:
             logger.info(f"Loading dataset from {self.dataset_path}")
@@ -122,24 +120,20 @@ class DataLoader:
     # ==========================================================
     # Domain conversion (delegated)
     # ==========================================================
-
-    def get_requests(
-        self,
-        split: str = "trainer",
-        max_requests: Optional[int] = None,
-    ) -> List[AccessRequest]:
+    def get_requests(self, split="trainer", max_requests=None):
 
         df = self.load_split(split)
-
-        if df.empty:
-            return []
-
-        return self.mapper.dataframe_to_requests(df, max_requests)
+    
+        if max_requests:
+            df = df.head(max_requests)
+    
+        records = df.to_dict(orient="records")
+    
+        return [self.mapper.map_record(r) for r in records]
 
     # ==========================================================
     # Accessors
     # ==========================================================
-
     def load_split(self, split: str) -> pd.DataFrame:
         if split == "trainer":
             return self.trainer_data if self.trainer_data is not None else pd.DataFrame()
