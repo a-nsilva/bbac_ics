@@ -3,20 +3,22 @@
 BBAC ICS Framework - Metrics Calculator
 Centralized metrics computation for experiments.
 """
+
+from typing import List, Tuple
+
 import numpy as np
 from scipy import stats
 from sklearn.metrics import (
     accuracy_score,
-    precision_score,
-    recall_score,
-    f1_score,
-    roc_auc_score,
     average_precision_score,
     confusion_matrix,
+    f1_score,
+    precision_recall_curve,
+    precision_score,
+    recall_score,
+    roc_auc_score,
     roc_curve,
-    precision_recall_curve
 )
-from typing import List, Tuple
 
 from ..utils.data_structures import (
     ClassificationMetrics,
