@@ -68,14 +68,16 @@ class DynamicRulesTest:
             # Add new role
             new_role = f"test_role_{i}"
             
-            start = time.time()
+            #start = time.time()
+            start = time.perf_counter()
             
             # Simulate rule update (in real system, would reload config)
             policy_engine.role_actions[AgentRole.OPERATOR].add(ActionType.DIAGNOSTIC)
             
             end = time.time()
             
-            latency_ms = (end - start) * 1000
+            #latency_ms = (end - start) * 1000
+            latency_ms = (time.perf_counter() - start) * 1000
             latencies.append(latency_ms)
         
         avg_latency = sum(latencies) / len(latencies)
@@ -157,3 +159,4 @@ def main():
 
 if __name__ == '__main__':
     main()
+
