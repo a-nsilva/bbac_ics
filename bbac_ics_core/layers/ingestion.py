@@ -9,7 +9,7 @@ Implements:
 import pandas as pd
 from typing import Dict
 from ..utils.data_structures import AccessRequest
-
+from ..utils.data_utils import compute_temporal_features
 
 def ingest_single(raw_event: Dict) -> AccessRequest:
     """
@@ -23,7 +23,32 @@ def ingest_single(raw_event: Dict) -> AccessRequest:
     """
     return AccessRequest.from_raw(raw_event)
 
-
+"""
+def ingest_batch(
+    df: pd.DataFrame,
+    max_attempts: int = 3,
+    drop_failed_auth: bool = False
+) -> pd.DataFrame:
+    events = df.copy()
+    
+    # Authentication filter
+    if drop_failed_auth:
+        events = events[
+            (events["auth_status"] == "success") &
+            (events["attempt_count"] <= max_attempts)
+        ]
+    else:
+        events = events[events["attempt_count"] <= max_attempts]
+    
+    # Temporal ordering
+    events = events.sort_values("timestamp").reset_index(drop=True)
+    
+    # Normalization
+    events = _normalize(events)
+    
+    return events
+"""
+        
 def ingest_batch(
     df: pd.DataFrame,
     max_attempts: int = 3,
@@ -54,11 +79,14 @@ def ingest_batch(
     # Temporal ordering
     events = events.sort_values("timestamp").reset_index(drop=True)
     
+    # Compute temporal features (time_gap)
+    events = compute_temporal_features(events)
+    
     # Normalization
     events = _normalize(events)
     
     return events
-
+    
 
 def _normalize(events: pd.DataFrame) -> pd.DataFrame:
     """
@@ -82,3 +110,4 @@ def _normalize(events: pd.DataFrame) -> pd.DataFrame:
             events[col] = events[col].astype(str).str.lower().str.strip()
     
     return events
+
