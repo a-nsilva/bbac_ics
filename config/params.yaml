@@ -82,9 +82,14 @@ thresholds:
   min_confidence_for_update: 0.7
   require_grant_for_update: true
   # Decision thresholds (score = legitimacy/confidence)
-  t_min_deny: 0.2         # score < 0.2 → DENY + ALERT (crítico)
-  t1_review: 0.4          # 0.2 ≤ score < 0.4 → MANUAL REVIEW
-  t2_mfa: 0.6             # 0.4 ≤ score < 0.6 → MFA
+  #t_min_deny: 0.2         # score < 0.2 → DENY + ALERT (crítico)
+  #t1_review: 0.4          # 0.2 ≤ score < 0.4 → MANUAL REVIEW
+  #t2_mfa: 0.6             # 0.4 ≤ score < 0.6 → MFA
+  # Decision thresholds (score = legitimacy/confidence, higher is better)
+  t_allow: 0.6            # score >= 0.6 → ALLOW
+  t_mfa: 0.4              # 0.4 <= score < 0.6 → MFA  
+  t_review: 0.2           # 0.2 <= score < 0.4 → REVIEW
+  t_auto_deny: 0.2        # score < 0.2 → AUTO DENY + ALERT
   
   high_confidence_alert: 0.8   # Para logs/monitoramento
 
