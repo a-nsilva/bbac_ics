@@ -19,7 +19,7 @@ logger = setup_logger('experiments', log_to_console=True)
 
 def train_ensemble_model(output_dir: Path):
     """Train meta-classifier ensemble on training data."""
-    logger.info("\n" + "=" * 50)
+    logger.info("=" * 50)
     logger.info("Training Ensemble Meta-Learner")
     logger.info("=" * 50)
     
@@ -146,7 +146,7 @@ def run_all_experiments(output_dir: str = 'results', train_ensemble: bool = Fals
     
     for exp_name, exp_class, exp_dir in experiments:
         #logger.info(f"\n{'=' * 50}")
-        logger.info("\n" + "=" * 50)
+        logger.info("=" * 50)
         logger.info(f"Running: {exp_name}")
         #logger.info(f"{'=' * 50}")
         logger.info("=" * 50)
@@ -176,7 +176,7 @@ def run_all_experiments(output_dir: str = 'results', train_ensemble: bool = Fals
     
     total_duration = time.time() - start_time
     
-    logger.info("\n" + "=" * 50)
+    logger.info("=" * 50)
     logger.info("Generating Publication Plots")
     logger.info("=" * 50)
     
@@ -230,7 +230,8 @@ def run_all_experiments(output_dir: str = 'results', train_ensemble: bool = Fals
         
         # 3. Latency distribution
         latencies_dict = {
-            name: [data['metrics']['latency']['mean']] * 100  # Mock distribution
+            #name: [data['metrics']['latency']['mean']] * 100  # Mock distribution
+            name: data['metrics']['latency'].get('values', [data['metrics']['latency']['mean']] * 100)
             for name, data in ablation_data.items()
         }
         
