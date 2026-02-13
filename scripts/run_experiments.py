@@ -19,9 +19,9 @@ logger = setup_logger('experiments', log_to_console=True)
 
 def train_ensemble_model(output_dir: Path):
     """Train meta-classifier ensemble on training data."""
-    logger.info("\n" + "=" * 80)
+    logger.info("\n" + "=" * 50)
     logger.info("Training Ensemble Meta-Learner")
-    logger.info("=" * 80)
+    logger.info("=" * 50)
     
     from bbac_ics_core.layers.fusion_layer import FusionLayer
     from bbac_ics_core.utils.data_loader import DataLoader
@@ -132,9 +132,9 @@ def run_all_experiments(output_dir: str = 'results', train_ensemble: bool = Fals
         except Exception as e:
             logger.error(f"Ensemble training failed: {e}")
     
-    logger.info("=" * 80)
+    logger.info("=" * 50)
     logger.info("BBAC EXPERIMENTAL EVALUATION - FULL SUITE")
-    logger.info("=" * 80)
+    logger.info("=" * 50)
     
     experiments = [
         ("Ablation Study", AblationStudy, 'ablation'),
@@ -145,9 +145,9 @@ def run_all_experiments(output_dir: str = 'results', train_ensemble: bool = Fals
     results = {}
     
     for exp_name, exp_class, exp_dir in experiments:
-        logger.info(f"\n{'=' * 80}")
+        logger.info(f"\n{'=' * 50}")
         logger.info(f"Running: {exp_name}")
-        logger.info(f"{'=' * 80}")
+        logger.info(f"{'=' * 50}")
         
         try:
             exp_output = output_path / exp_dir
@@ -174,9 +174,9 @@ def run_all_experiments(output_dir: str = 'results', train_ensemble: bool = Fals
     
     total_duration = time.time() - start_time
     
-    logger.info("\n" + "=" * 80)
+    logger.info("\n" + "=" * 50)
     logger.info("Generating Publication Plots")
-    logger.info("=" * 80)
+    logger.info("=" * 50)
     
     try:
         from bbac_ics_core.utils.generate_plots import GeneratePlots
@@ -312,9 +312,9 @@ def run_all_experiments(output_dir: str = 'results', train_ensemble: bool = Fals
         logger.error(f"Plot generation failed: {e}")
         
     # Summary
-    logger.info("\n" + "=" * 80)
+    logger.info("\n" + "=" * 50)
     logger.info("EXPERIMENTAL SUITE SUMMARY")
-    logger.info("=" * 80)
+    logger.info("=" * 50)
     
     for exp_name, result in results.items():
         status = result['status']
