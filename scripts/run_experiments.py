@@ -270,7 +270,7 @@ def run_all_experiments(output_dir: str = 'results', train_ensemble: bool = Fals
             for name, metrics in metrics_dict.items()
             if (metrics.fpr and metrics.tpr and 
                 len(metrics.fpr) > 2 and 
-                max(metrics.fpr) > 0.01)  # FPR deve variar
+                max(metrics.fpr) > 0.01) 
         }
         
         if configs_with_roc:
@@ -366,32 +366,41 @@ def run_all_experiments(output_dir: str = 'results', train_ensemble: bool = Fals
         
         metrics_calc = MetricsCalculator()
         
-        # Extract scores for comparison
-        config_scores = {}
+        # Extract predictions for comparison
+        config_predictions = {}
+        config_ground_truth = {}
+        
         for config_name, data in ablation_data.items():
-            # Mock: usar accuracy como proxy (idealmente pegar raw predictions)
-            acc = data['metrics']['accuracy']
-            # Simular distribuição baseada em accuracy
-            import numpy as np
-            config_scores[config_name] = [acc + np.random.normal(0, 0.01) for _ in range(100)]
+            if 'predictions' in data and 'ground_truth' in data:
+                config_predictions[config_name] = data['predictions']
+                config_ground_truth[config_name] = data['ground_truth']
         
         # Compare full_system vs baselines
-        if 'full_system' in config_scores:
-            full_scores = config_scores['full_system']
+        if 'full_system' in config_predictions and len(config_predictions['full_system']) > 0:
+            full_pred = config_predictions['full_system']
+            full_gt = config_ground_truth['full_system']
+            
+            # Convert to error rates for comparison (0 = correct, 1 = error)
+            full_errors = [1 if p != gt else 0 for p, gt in zip(full_pred, full_gt)]
             
             comparisons = ['policy_only', 'statistical_only', 'sequence_only']
             
             logger.info("\nWilcoxon Signed-Rank Tests (full_system vs baselines):")
-            logger.info("-" * 50)
+            logger.info("-" * 80)
             
             for baseline in comparisons:
-                if baseline in config_scores:
+                if baseline in config_predictions and len(config_predictions[baseline]) > 0:
+                    baseline_pred = config_predictions[baseline]
+                    baseline_gt = config_ground_truth[baseline]
+                    baseline_errors = [1 if p != gt else 0 for p, gt in zip(baseline_pred, baseline_gt)]
+                    
+                    # Test on error rates
                     test_result = metrics_calc.wilcoxon_test(
-                        full_scores,
-                        config_scores[baseline],
+                        full_errors[:min(len(full_errors), len(baseline_errors))],
+                        baseline_errors[:min(len(full_errors), len(baseline_errors))],
                         alpha=0.05
                     )
-                    
+                                
                     sig_marker = "***" if test_result.p_value < 0.001 else \
                                  "**" if test_result.p_value < 0.01 else \
                                  "*" if test_result.p_value < 0.05 else "ns"
