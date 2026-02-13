@@ -189,14 +189,17 @@ bbac_ics/
 │   ├── devcontainer.json       # VS Code Dev Container config
 │   └── Dockerfile              # ROS2 Humble + Python environment
 ├── bbac_ics_core/              # Main package
+│   ├── __init__.py      
 │   ├── experiments/            # Evaluation framework
+│   │   ├── __init__.py
 │   │   ├── ablation_study.py           # Layer impact analysis
 │   │   ├── adaptive_eval.py            # Baseline adaptation tests
 │   │   ├── dynamic_rules_test.py       # Rule update performance
 │   │   └── metrics_calculator.py       # Centralized metrics
 │   ├── layers/                 # Processing layers
+│   │   ├── __init__.py
 │   │   ├── authentication.py           # Auth validation
-│   │   ├── behavioral_baseline.py      # Adaptive baseline (70/30)
+│   │   ├── baseline_manager.py         # Adaptive baseline (70/30)
 │   │   ├── decision_maker.py           # Final decision logic
 │   │   ├── feature_extractor.py        # Feature engineering
 │   │   ├── fusion_layer.py             # Score fusion
@@ -204,13 +207,16 @@ bbac_ics/
 │   │   ├── learning_updater.py         # Continuous learning
 │   │   └── policy_engine.py            # RuBAC policies
 │   ├── models/                 # ML models
+│   │   ├── __init__.py
+│   │   ├── ensemble_predictor.py
 │   │   ├── lstm_predictor.py           # Sequence prediction
 │   │   └── statistical_detector.py     # Anomaly detection
 │   ├── nodes/                  # ROS2 nodes
-│   │   ├── bbac_main_node.py           # Main orchestrator
 │   │   ├── baseline_manager_node.py    # Baseline updates
+│   │   ├── bbac_main_node.py           # Main orchestrator
 │   │   └── evaluator_node.py           # Real-time metrics
 │   └── utils/                  # Utilities
+│       ├── __init__.py
 │       ├── config_loader.py            # YAML config
 │       ├── data_loader.py              # Dataset loading
 │       ├── data_structures.py          # Dataclasses & enums
@@ -231,6 +237,7 @@ bbac_ics/
 │   ├── LayerOutput.msg
 │   └── LayerDecisionDetail.msg
 ├── scripts/                    # Standalone scripts
+│   ├── generate_dataset.py   
 │   ├── validate_system.py      # System validation
 │   └── run_experiments.py      # Run all experiments
 └── requirements.txt            # Python dependencies
