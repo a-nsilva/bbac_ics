@@ -120,16 +120,19 @@ class DataLoader:
     # ==========================================================
     # Domain conversion (delegated)
     # ==========================================================
-    def get_requests(self, split="trainer", max_requests=None):
+    def get_requests(self, split="trainer", max_requests: Optional[int] = None) -> List[AccessRequest]:
 
         df = self.load_split(split)
-    
+
+        if df.empty:
+            return []
+        
         if max_requests:
             df = df.head(max_requests)
     
         records = df.to_dict(orient="records")
     
-        return [self.mapper.map_record(r) for r in records]
+        return [self.mapper.map_record(record) for record in records]
 
     # ==========================================================
     # Accessors
