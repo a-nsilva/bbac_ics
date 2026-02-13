@@ -5,8 +5,10 @@ Implements adaptive baseline computation using sliding window (70% recent, 30% h
 """
 import pandas as pd
 import pickle
+import numpy as np
 from pathlib import Path
-from typing import Dict, Optional
+from typing import Dict, Optional, Tuple
+from scipy.stats import entropy
 from ..utils.config_loader import ConfigLoader
 
 
@@ -221,6 +223,125 @@ class BaselineManager:
         
         with open(filepath, 'rb') as f:
             self.baselines = pickle.load(f)
+
+    def detect_drift(
+        self,
+        agent_id: str,
+        current_baseline: Dict,
+        method: str = 'kl_divergence',
+        threshold: float = 0.15
+    ) -> Tuple[bool, float]:
+        """
+        Detect behavioral drift between current and historical baseline.
+        
+        Args:
+            agent_id: Agent identifier
+            current_baseline: Current baseline statistics
+            method: Drift detection method ('kl_divergence' or 'ks_test')
+            threshold: Drift threshold
+            
+        Returns:
+            (drift_detected, drift_score) tuple
+        """
+        # Get historical baseline
+        if agent_id not in self.baselines:
+            return False, 0.0
+        
+        historical = self.baselines[agent_id].get('current', {})
+        
+        if not historical or not current_baseline:
+            return False, 0.0
+        
+        if method == 'kl_divergence':
+            drift_score = self._compute_kl_drift(historical, current_baseline)
+        elif method == 'ks_test':
+            drift_score = self._compute_ks_drift(historical, current_baseline)
+        else:
+            drift_score = 0.0
+        
+        drift_detected = drift_score > threshold
+        
+        return drift_detected, drift_score
+    
+    def _compute_kl_drift(
+        self,
+        baseline1: Dict,
+        baseline2: Dict
+    ) -> float:
+        """
+        Compute KL divergence between two baselines.
+        
+        Measures difference in action distributions.
+        
+        Args:
+            baseline1: First baseline
+            baseline2: Second baseline
+            
+        Returns:
+            KL divergence score (higher = more drift)
+        """
+        # Compare action frequency distributions
+        dist1 = baseline1.get('action_freq', {})
+        dist2 = baseline2.get('action_freq', {})
+        
+        if not dist1 or not dist2:
+            return 0.0
+        
+        # Get all actions
+        all_actions = set(dist1.keys()).union(dist2.keys())
+        
+        if not all_actions:
+            return 0.0
+        
+        # Build probability arrays with smoothing
+        epsilon = 1e-10
+        p = np.array([dist1.get(a, 0.0) + epsilon for a in all_actions])
+        q = np.array([dist2.get(a, 0.0) + epsilon for a in all_actions])
+        
+        # Normalize
+        p = p / p.sum()
+        q = q / q.sum()
+        
+        # Compute KL divergence
+        kl_div = float(entropy(p, q))
+        
+        return kl_div
+    
+    def _compute_ks_drift(
+        self,
+        baseline1: Dict,
+        baseline2: Dict
+    ) -> float:
+        """
+        Compute Kolmogorov-Smirnov statistic for drift.
+        
+        Args:
+            baseline1: First baseline
+            baseline2: Second baseline
+            
+        Returns:
+            KS statistic (higher = more drift)
+        """
+        from scipy.stats import ks_2samp
+        
+        # Compare temporal gap distributions
+        gap1 = baseline1.get('mean_gap', 0.0)
+        std1 = baseline1.get('std_gap', 1.0)
+        
+        gap2 = baseline2.get('mean_gap', 0.0)
+        std2 = baseline2.get('std_gap', 1.0)
+        
+        # Generate samples from distributions (approximation)
+        if std1 > 0 and std2 > 0:
+            samples1 = np.random.normal(gap1, std1, 100)
+            samples2 = np.random.normal(gap2, std2, 100)
+            
+            # KS test
+            statistic, p_value = ks_2samp(samples1, samples2)
+            
+            return float(statistic)
+        
+        return 0.0
 
 
 
