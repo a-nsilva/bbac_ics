@@ -4,8 +4,10 @@ BBAC ICS Framework - Feature Extraction Layer
 Extracts features from AccessRequest using baseline statistics.
 """
 
-import pandas as pd
 from typing import Dict
+
+import pandas as pd
+
 from ..utils.data_structures import AccessRequest
 
 
@@ -119,5 +121,6 @@ def attach_temporal_gap(events: pd.DataFrame) -> pd.DataFrame:
     events = events.copy()
     events["time_gap"] = events["timestamp"].diff().fillna(0.0)
     return events
+
 
 
