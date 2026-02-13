@@ -44,7 +44,9 @@ class LearningUpdater:
         
         self.buffer_size = config.get('buffer_size', 1000)
         self.min_samples = config.get('min_samples_for_update', 100)
-        self.trust_threshold = config.get('trust_threshold', 0.8)
+        #self.trust_threshold = config.get('trust_threshold', 0.8)
+        thresholds_config = ConfigLoader.load().get('thresholds', {})
+        self.trust_threshold = thresholds_config.get('trust_threshold', 0.8)
         
         # Trusted buffer per agent: {agent_id: [requests]}
         self.trusted_buffer: Dict[str, List[AccessRequest]] = defaultdict(list)
@@ -200,6 +202,7 @@ class LearningUpdater:
         
         # Clear quarantine
         self.quarantine = []
+
 
 
 
