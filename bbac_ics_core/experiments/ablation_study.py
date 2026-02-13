@@ -184,6 +184,7 @@ class AblationStudy:
         predictions = []
         ground_truth = []
         latencies = []
+        scores = []
         
         for idx, row in df.iterrows():
             request = self._row_to_request(row)
@@ -306,6 +307,7 @@ def main():
 
 if __name__ == '__main__':
     main()
+
 
 
 
