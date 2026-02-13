@@ -212,7 +212,11 @@ def run_all_experiments(output_dir: str = 'results', train_ensemble: bool = Fals
                 tp=m['confusion_matrix']['tp'],
                 tn=m['confusion_matrix']['tn'],
                 fp=m['confusion_matrix']['fp'],
-                fn=m['confusion_matrix']['fn']
+                fn=m['confusion_matrix']['fn'],
+                fpr=m.get('fpr', []),              
+                tpr=m.get('tpr', []),              
+                precision_curve=m.get('precision_curve', []), 
+                recall_curve=m.get('recall_curve', [])      
             )
         
         plots.plot_metrics_comparison(
