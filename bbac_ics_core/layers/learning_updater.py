@@ -100,7 +100,8 @@ class LearningUpdater:
             True if trusted
         """
         # Only trust 'allow' decisions with high confidence
-        if decision.decision != "allow":
+        #if decision.decision != "allow":
+        if decision.decision != DecisionOutput.ALLOW.value:
             return False
         
         if decision.confidence < self.trust_threshold:
@@ -199,5 +200,6 @@ class LearningUpdater:
         
         # Clear quarantine
         self.quarantine = []
+
 
 
