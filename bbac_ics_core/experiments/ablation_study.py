@@ -301,7 +301,7 @@ class AblationStudy:
                 f"{config_name:<20} "
                 f"{metrics['accuracy']:<12.4f} "
                 f"{metrics['f1_score']:<12.4f} "
-                f"{metrics['latency']['mean']:<15.2f}"
+                f"{metrics['latency']['mean']:<15.4f}"
             )
 
 
@@ -313,3 +313,4 @@ def main():
 
 if __name__ == '__main__':
     main()
+
