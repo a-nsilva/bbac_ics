@@ -412,7 +412,7 @@ class GeneratePlots:
         ax1.grid(True, alpha=0.3, axis='y')
         
         # Latency
-        ax2.bar(configs, metrics['Latency'], color='coral', alpha=0.8)
+        ax2.bar(x, metrics['Latency'], color='coral', alpha=0.8)
         ax2.axhline(y=100, color='r', linestyle='--', label='Target 100ms')
         ax2.set_ylabel('Latency (ms)', fontsize=12)
         ax2.set_title('Latency Comparison', fontsize=12, fontweight='bold')
