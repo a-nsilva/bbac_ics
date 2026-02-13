@@ -1,3 +1,9 @@
+#!/usr/bin/env python3
+"""
+BBAC_ICS - Configuration Loader
+
+Converter YAML para objetos
+"""
 
 
 class ConfigLoader:
