@@ -236,6 +236,8 @@ def run_all_experiments(output_dir: str = 'results', train_ensemble: bool = Fals
                 filename='roc_curves.png'
             )
             logger.info("✓ ROC curves generated")
+        else:
+            logger.warning("⚠ No FPR/TPR data for ROC curves")
         
         # 6. Precision-Recall curves
         if any(m.precision_curve and m.recall_curve for m in metrics_dict.values()):
@@ -245,6 +247,8 @@ def run_all_experiments(output_dir: str = 'results', train_ensemble: bool = Fals
                 filename='pr_curves.png'
             )
             logger.info("✓ PR curves generated")
+        else:
+            logger.warning("⚠ No precision/recall curves data")
 
         # 7. Adaptive drift plot (if data available)
         adaptive_file = output_path / 'adaptive/adaptive_results.json'
