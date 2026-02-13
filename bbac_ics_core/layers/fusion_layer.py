@@ -5,14 +5,16 @@ Combines decisions from statistical, sequence, and policy layers.
 """
 import time
 from typing import Dict, List, Optional
-from ..utils.data_structures import (
-    LayerDecision,
-    HybridDecision,
-    DecisionType,
-    FusionStrategy
-)
-from ..utils.config_loader import ConfigLoader
+
 from ..models.ensemble_predictor import EnsemblePredictor
+
+from ..utils.config_loader import ConfigLoader
+from ..utils.data_structures import (    
+    DecisionType,
+    FusionStrategy,
+    HybridDecision,
+    LayerDecision
+)
 
 
 class FusionLayer:
@@ -229,5 +231,6 @@ class FusionLayer:
             return {}
         
         return self.ensemble.get_feature_importance()
+
 
 
