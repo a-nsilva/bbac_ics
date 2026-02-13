@@ -56,13 +56,21 @@ class FeatureExtractor:
             request.location
         )
         
-        # Temporal deviation (requires time_gap in request.context)
+        # Temporal deviation
+        #mean_gap = baseline.get("mean_gap", 0.0)
+        #std_gap = baseline.get("std_gap", 1.0)
+        #current_gap = request.context.get("time_gap", mean_gap)
+        
+        #features["gap_deviation"] = abs(current_gap - mean_gap) / (std_gap + 1e-6)
         mean_gap = baseline.get("mean_gap", 0.0)
         std_gap = baseline.get("std_gap", 1.0)
-        current_gap = request.context.get("time_gap", mean_gap)
+        current_gap = request.context.get("time_gap", 0.0)
         
-        features["gap_deviation"] = abs(current_gap - mean_gap) / (std_gap + 1e-6)
-        
+        if current_gap > 0 and std_gap > 0:
+            features["gap_deviation"] = abs(current_gap - mean_gap) / (std_gap + 1e-6)
+        else:
+            features["gap_deviation"] = 0.0
+    
         # Human presence deviation
         expected_hp = baseline.get("human_presence_prob", 0.5)
         features["human_presence_diff"] = abs(float(request.human_present) - expected_hp)
@@ -111,4 +119,5 @@ def attach_temporal_gap(events: pd.DataFrame) -> pd.DataFrame:
     events = events.copy()
     events["time_gap"] = events["timestamp"].diff().fillna(0.0)
     return events
+
 
