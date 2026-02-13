@@ -37,9 +37,9 @@ class AdaptiveEvaluation:
     
     def run(self) -> Dict:
         """Run adaptive evaluation tests."""
-        print("=" * 60)
+        print("=" * 50)
         print("ADAPTIVE BASELINE EVALUATION")
-        print("=" * 60)
+        print("=" * 50)
         
         results = {}
         
@@ -243,7 +243,3 @@ def main():
 
 if __name__ == '__main__':
     main()
-
-
-
-
