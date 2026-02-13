@@ -3,19 +3,20 @@
 BBAC_ICS Framework - Dynamic Rules Test
 Tests policy engine rule updates and consistency.
 """
-import time
-from typing import Dict
-from pathlib import Path
+
 import json
+import time
+from pathlib import Path
+from typing import Dict
 
 from ..layers.policy_engine import PolicyEngine
 from ..utils.data_structures import (
     AccessRequest,
-    AgentType,
-    AgentRole,
     ActionType,
+    AgentRole,
+    AgentType,
+    AuthStatus,
     ResourceType,
-    AuthStatus
 )
 
 
@@ -36,9 +37,9 @@ class DynamicRulesTest:
     
     def run(self) -> Dict:
         """Run dynamic rules tests."""
-        print("=" * 60)
+        print("=" * 50)
         print("DYNAMIC RULES EVALUATION")
-        print("=" * 60)
+        print("=" * 50)
         
         results = {}
         
@@ -130,7 +131,7 @@ class DynamicRulesTest:
         
         print(f"  Evaluations: {num_evaluations}")
         print(f"  Unique decisions: {len(unique_decisions)}")
-        print(f"  Consistency rate: {consistency_rate * 100:.2f}%")
+        print(f"  Consistency rate: {consistency_rate * 100:.4f}%")
         print(f"  Target: > 99.9%")
         print(f"  Status: {'✓ PASS' if consistency_rate > 0.999 else '✗ FAIL'}")
         
@@ -160,5 +161,6 @@ def main():
 
 if __name__ == '__main__':
     main()
+
 
 
