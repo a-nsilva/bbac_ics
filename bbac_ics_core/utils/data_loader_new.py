@@ -6,12 +6,12 @@ Responsible ONLY for loading raw dataset splits.
 
 import logging
 from pathlib import Path
-from typing import Dict, Optional, Tuple
+from typing import Dict, Optional, Tuple, List
 
 import pandas as pd
 
-from ..utils.data_structures import FullConfig
-from ..utils.request_mapper import RequestMapper
+from ..utils.data_structures import FullConfig, AccessRequest
+from .request_mapper import RequestMapper
 
 logger = logging.getLogger(__name__)
 
@@ -46,8 +46,6 @@ class DataLoader:
         self.validation_data: Optional[pd.DataFrame] = None
         self.test_data: Optional[pd.DataFrame] = None
 
-        self._validate_dataset()
-
         logger.info(f"DataLoader initialized with path: {self.dataset_path}")
 
     # ==========================================================
@@ -79,6 +77,8 @@ class DataLoader:
     def load_all(self) -> bool:
         try:
             logger.info(f"Loading dataset from {self.dataset_path}")
+
+            self._validate_dataset()
 
             self.trainer_data = self._load_csv(self.paths_config.trainer_file)
             self.validation_data = self._load_csv(self.paths_config.validation_file)
@@ -127,8 +127,13 @@ class DataLoader:
         self,
         split: str = "trainer",
         max_requests: Optional[int] = None,
-    ):
+    ) -> List[AccessRequest]:
+
         df = self.load_split(split)
+
+        if df.empty:
+            return []
+
         return self.mapper.dataframe_to_requests(df, max_requests)
 
     # ==========================================================
@@ -137,11 +142,12 @@ class DataLoader:
 
     def load_split(self, split: str) -> pd.DataFrame:
         if split == "trainer":
-            return self.trainer_data or pd.DataFrame()
+            return self.trainer_data if self.trainer_data is not None else pd.DataFrame()
         if split == "validation":
-            return self.validation_data or pd.DataFrame()
+            return self.validation_data if self.validation_data is not None else pd.DataFrame()
         if split == "test":
-            return self.test_data or pd.DataFrame()
+            return self.test_data if self.test_data is not None else pd.DataFrame()
+
         raise ValueError(f"Invalid split: {split}")
 
     def get_data_split(
