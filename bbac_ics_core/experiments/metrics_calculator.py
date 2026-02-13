@@ -4,6 +4,7 @@ BBAC ICS Framework - Metrics Calculator
 Centralized metrics computation for experiments.
 """
 import numpy as np
+from scipy import stats
 from sklearn.metrics import (
     accuracy_score,
     precision_score,
@@ -15,12 +16,13 @@ from sklearn.metrics import (
     roc_curve,
     precision_recall_curve
 )
-from typing import List
+from typing import List, Tuple
 
 from ..utils.data_structures import (
     ClassificationMetrics,
     LatencyMetrics,
-    PerformanceMetrics
+    PerformanceMetrics,
+    StatisticalTest
 )
 
 
@@ -143,3 +145,181 @@ class MetricsCalculator:
             total_requests=total_requests,
             total_time=total_time
         )
+
+
+    def wilcoxon_test(
+        self,
+        scores_a: List[float],
+        scores_b: List[float],
+        alpha: float = 0.05
+    ) -> StatisticalTest:
+        """
+        Perform Wilcoxon signed-rank test (paired samples).
+        
+        Tests if two methods produce significantly different scores
+        on the same dataset.
+        
+        Args:
+            scores_a: Scores from method A
+            scores_b: Scores from method B
+            alpha: Significance level
+            
+        Returns:
+            StatisticalTest object
+        """
+        if len(scores_a) != len(scores_b):
+            raise ValueError("Scores must have same length for paired test")
+        
+        # Wilcoxon signed-rank test
+        statistic, p_value = stats.wilcoxon(scores_a, scores_b)
+        
+        # Effect size (rank-biserial correlation)
+        n = len(scores_a)
+        r = 1 - (2 * statistic) / (n * (n + 1))
+        
+        # Confidence interval (approximation)
+        z_critical = stats.norm.ppf(1 - alpha / 2)
+        se = np.sqrt(n * (n + 1) * (2 * n + 1) / 6)
+        
+        ci_low = r - z_critical * (1 / se)
+        ci_high = r + z_critical * (1 / se)
+        
+        significant = p_value < alpha
+        
+        return StatisticalTest(
+            p_value=float(p_value),
+            effect_size=float(r),
+            ci_low=float(ci_low),
+            ci_high=float(ci_high),
+            significant=significant
+        )
+    
+    def mann_whitney_test(
+        self,
+        scores_a: List[float],
+        scores_b: List[float],
+        alpha: float = 0.05
+    ) -> StatisticalTest:
+        """
+        Perform Mann-Whitney U test (independent samples).
+        
+        Tests if two independent methods have different distributions.
+        
+        Args:
+            scores_a: Scores from method A
+            scores_b: Scores from method B
+            alpha: Significance level
+            
+        Returns:
+            StatisticalTest object
+        """
+        # Mann-Whitney U test
+        statistic, p_value = stats.mannwhitneyu(
+            scores_a,
+            scores_b,
+            alternative='two-sided'
+        )
+        
+        # Effect size (rank-biserial correlation)
+        n1 = len(scores_a)
+        n2 = len(scores_b)
+        r = 1 - (2 * statistic) / (n1 * n2)
+        
+        # Confidence interval (approximation)
+        z_critical = stats.norm.ppf(1 - alpha / 2)
+        se = np.sqrt((n1 * n2 * (n1 + n2 + 1)) / 12)
+        
+        ci_low = r - z_critical * (1 / se)
+        ci_high = r + z_critical * (1 / se)
+        
+        significant = p_value < alpha
+        
+        return StatisticalTest(
+            p_value=float(p_value),
+            effect_size=float(r),
+            ci_low=float(ci_low),
+            ci_high=float(ci_high),
+            significant=significant
+        )
+    
+    def paired_t_test(
+        self,
+        scores_a: List[float],
+        scores_b: List[float],
+        alpha: float = 0.05
+    ) -> StatisticalTest:
+        """
+        Perform paired t-test (parametric alternative to Wilcoxon).
+        
+        Args:
+            scores_a: Scores from method A
+            scores_b: Scores from method B
+            alpha: Significance level
+            
+        Returns:
+            StatisticalTest object
+        """
+        if len(scores_a) != len(scores_b):
+            raise ValueError("Scores must have same length for paired test")
+        
+        # Paired t-test
+        statistic, p_value = stats.ttest_rel(scores_a, scores_b)
+        
+        # Cohen's d effect size
+        differences = np.array(scores_a) - np.array(scores_b)
+        d = np.mean(differences) / np.std(differences, ddof=1)
+        
+        # Confidence interval
+        n = len(scores_a)
+        se = stats.sem(differences)
+        ci = stats.t.interval(1 - alpha, n - 1, loc=np.mean(differences), scale=se)
+        
+        significant = p_value < alpha
+        
+        return StatisticalTest(
+            p_value=float(p_value),
+            effect_size=float(d),
+            ci_low=float(ci[0]),
+            ci_high=float(ci[1]),
+            significant=significant
+        )
+    
+    def compare_methods(
+        self,
+        method_scores: dict,
+        test_type: str = 'wilcoxon',
+        alpha: float = 0.05
+    ) -> dict:
+        """
+        Compare multiple methods with statistical tests.
+        
+        Args:
+            method_scores: Dict mapping method names to score lists
+            test_type: 'wilcoxon', 'mann_whitney', or 't_test'
+            alpha: Significance level
+            
+        Returns:
+            Dictionary of pairwise test results
+        """
+        methods = list(method_scores.keys())
+        results = {}
+        
+        for i, method_a in enumerate(methods):
+            for method_b in methods[i + 1:]:
+                scores_a = method_scores[method_a]
+                scores_b = method_scores[method_b]
+                
+                pair_name = f"{method_a}_vs_{method_b}"
+                
+                if test_type == 'wilcoxon':
+                    test_result = self.wilcoxon_test(scores_a, scores_b, alpha)
+                elif test_type == 'mann_whitney':
+                    test_result = self.mann_whitney_test(scores_a, scores_b, alpha)
+                elif test_type == 't_test':
+                    test_result = self.paired_t_test(scores_a, scores_b, alpha)
+                else:
+                    raise ValueError(f"Unknown test type: {test_type}")
+                
+                results[pair_name] = test_result.to_dict()
+        
+        return results
