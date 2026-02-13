@@ -216,22 +216,13 @@ class AblationStudy:
             predictions.append(pred)
             ground_truth.append(gt)
             latencies.append(final_decision.latency_ms)
+            scores.append(hybrid_decision.score) 
         
         # Calculate metrics with scores for ROC/PR curves
-        # Convert predictions to scores (0-1 probabilities)
-        # Como predictions são binários, usar latency como proxy ou fusion scores
-        #metrics = self.metrics_calc.calculate_classification_metrics(
-        #    ground_truth,
-        #    predictions
-        #)
-
-        scores = [final_decision.confidence for final_decision in all_decisions]  # Precisa coletar
-        
-        # Por enquanto, usar predictions como scores (subótimo)
         metrics = self.metrics_calc.calculate_classification_metrics(
             ground_truth,
             predictions,
-            y_scores=[p for p in predictions]  # Workaround: usa predições como scores
+            y_scores=scores
         )
         
         latency_metrics = self.metrics_calc.calculate_latency_metrics(latencies)
@@ -315,6 +306,7 @@ def main():
 
 if __name__ == '__main__':
     main()
+
 
 
 
