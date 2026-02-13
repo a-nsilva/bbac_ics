@@ -74,7 +74,8 @@ class DynamicRulesTest:
             # Simulate rule update (in real system, would reload config)
             policy_engine.role_actions[AgentRole.OPERATOR].add(ActionType.DIAGNOSTIC)
             
-            end = time.time()
+            #end = time.time()
+            end = time.perf_counter()
             
             #latency_ms = (end - start) * 1000
             latency_ms = (time.perf_counter() - start) * 1000
@@ -159,4 +160,5 @@ def main():
 
 if __name__ == '__main__':
     main()
+
 
