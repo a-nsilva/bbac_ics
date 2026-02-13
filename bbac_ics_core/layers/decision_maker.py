@@ -30,9 +30,13 @@ class DecisionMaker:
         if config is None:
             config = ConfigLoader.load().get('thresholds', {})
         
-        self.t_min_deny = config.get('t_min_deny', 0.2)
-        self.t1_review = config.get('t1_review', 0.4)
-        self.t2_mfa = config.get('t2_mfa', 0.6)
+        #self.t_min_deny = config.get('t_min_deny', 0.2)
+        #self.t1_review = config.get('t1_review', 0.4)
+        #self.t2_mfa = config.get('t2_mfa', 0.6)
+        self.t_auto_deny = config.get('t_auto_deny', 0.2)
+        self.t_review = config.get('t_review', 0.2)
+        self.t_mfa = config.get('t_mfa', 0.4)
+        self.t_allow = config.get('t_allow', 0.6)
         self.high_conf_alert = config.get('high_confidence_alert', 0.8)
         
         # Decision strings from config (eliminando hardcode)
@@ -64,6 +68,7 @@ class DecisionMaker:
         score = hybrid_decision.score
         
         # Apply threshold logic (from flowchart)
+        """
         if score < self.t_min_deny:
             decision = self.decision_labels['auto_deny']
             reason = "critical_anomaly_detected"
@@ -80,7 +85,28 @@ class DecisionMaker:
             decision = self.decision_labels['allow']
             reason = "request_approved"
             alert = False
-        
+        """
+        if score < self.t_auto_deny:
+            decision = self.decision_labels['auto_deny']
+            reason = "critical_anomaly_detected"
+            alert = True
+        elif score < self.t_review:
+            decision = self.decision_labels['deny']
+            reason = "insufficient_confidence"
+            alert = False
+        elif score < self.t_mfa:
+            decision = self.decision_labels['review']
+            reason = "suspicious_pattern_requires_review"
+            alert = False
+        elif score < self.t_allow:
+            decision = self.decision_labels['mfa']
+            reason = "additional_authentication_required"
+            alert = False
+        else:  # score >= t_allow
+            decision = self.decision_labels['allow']
+            reason = "request_approved"
+            alert = False
+
         # High confidence alert (monitoring)
         if score >= self.high_conf_alert and decision == self.decision_labels['allow']:
             reason = "high_confidence_approval"
@@ -118,3 +144,4 @@ class DecisionMaker:
             reason=reason,
             layer_decisions=layer_decisions_dict
         )
+
