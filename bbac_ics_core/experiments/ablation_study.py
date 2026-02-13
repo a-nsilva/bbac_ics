@@ -161,6 +161,24 @@ class AblationStudy:
             agent_data = train_df[train_df['agent_id'] == agent_id]
             if not agent_data.empty:
                 baseline_manager.compute_baseline(agent_id, agent_data)
+
+        # Train MarkovChain if sequence layer enabled
+        if lstm_predictor:
+            from ..utils.data_utils import extract_session_sequences
+            
+            sequences = extract_session_sequences(
+                train_df,
+                session_col='session_id',
+                action_col='action',
+                min_length=2
+            )
+            sequence_list = list(sequences.values())
+            
+            if sequence_list:
+                lstm_predictor.update_model(sequence_list)
+                print(f"  ✓ MarkovChain trained with {len(sequence_list)} sequences")
+            else:
+                print(f"  ⚠ No sequences found for training")
         
         # Process requests
         predictions = []
@@ -286,6 +304,7 @@ def main():
 
 if __name__ == '__main__':
     main()
+
 
 
 
