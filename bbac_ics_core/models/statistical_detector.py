@@ -37,7 +37,8 @@ class StatisticalDetector:
         Returns:
             LayerDecision with score and decision
         """
-        start = time.time()
+        #start = time.time()
+        start = time.perf_counter()
         
         # Extract features
         features = self.feature_extractor.extract(request)
@@ -51,7 +52,8 @@ class StatisticalDetector:
         # Decision based on threshold
         decision = "grant" if score >= self.anomaly_threshold else "deny"
         
-        latency_ms = (time.time() - start) * 1000
+        #latency_ms = (time.time() - start) * 1000
+        latency_ms = (time.perf_counter() - start) * 1000
         
         return LayerDecision(
             layer_name="statistical",
@@ -108,3 +110,4 @@ class StatisticalDetector:
         
         # Clip to [0, 1]
         return min(anomaly, 1.0)
+
