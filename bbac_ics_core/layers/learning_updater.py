@@ -8,7 +8,7 @@ import pandas as pd
 from pathlib import Path
 from typing import List, Dict
 from collections import defaultdict
-from ..utils.data_structures import AccessRequest, AccessDecision
+from ..utils.data_structures import AccessRequest, AccessDecision, DecisionOutput
 from ..layers.baseline_manager import BaselineManager
 from ..models.lstm_predictor import LSTMPredictor
 from ..utils.config_loader import ConfigLoader
@@ -199,4 +199,5 @@ class LearningUpdater:
         
         # Clear quarantine
         self.quarantine = []
+
 
