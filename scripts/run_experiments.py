@@ -163,7 +163,7 @@ def run_all_experiments(output_dir: str = 'results', train_ensemble: bool = Fals
                 'output_dir': str(exp_output)
             }
             
-            logger.info(f"✓ {exp_name} completed in {exp_duration:.2f}s")
+            logger.info(f"✓ {exp_name} completed in {exp_duration:.4f}s")
             
         except Exception as e:
             logger.error(f"✗ {exp_name} failed: {e}")
@@ -249,7 +249,7 @@ def run_all_experiments(output_dir: str = 'results', train_ensemble: bool = Fals
                     filename=f'confusion_matrix_{config_name}.png'
                 )
         logger.info(f"✓ Confusion matrices generated for {len(top_configs)} configs")
-        
+        """
         # 5. ROC curves comparison
         if any(m.fpr and m.tpr for m in metrics_dict.values()):
             plots.plot_roc_curve(
@@ -260,7 +260,27 @@ def run_all_experiments(output_dir: str = 'results', train_ensemble: bool = Fals
             logger.info("✓ ROC curves generated")
         else:
             logger.warning("⚠ No FPR/TPR data for ROC curves")
+        """
+        # 5. ROC curves comparison (filter valid curves)
+        configs_with_roc = {
+            name: metrics 
+            for name, metrics in metrics_dict.items()
+            if (metrics.fpr and metrics.tpr and 
+                len(metrics.fpr) > 2 and 
+                max(metrics.fpr) > 0.01)  # FPR deve variar
+        }
         
+        if configs_with_roc:
+            plots.plot_roc_curve(
+                configs_with_roc,
+                title='ROC Curves Comparison',
+                filename='roc_curves.png'
+            )
+            logger.info(f"✓ ROC curves generated for {len(configs_with_roc)} config(s): {list(configs_with_roc.keys())}")
+        else:
+            logger.warning("⚠ No valid ROC curves (FPR has no variation)")
+
+        """
         # 6. Precision-Recall curves
         if any(m.precision_curve and m.recall_curve for m in metrics_dict.values()):
             plots.plot_precision_recall_curve(
@@ -271,6 +291,25 @@ def run_all_experiments(output_dir: str = 'results', train_ensemble: bool = Fals
             logger.info("✓ PR curves generated")
         else:
             logger.warning("⚠ No precision/recall curves data")
+        """
+        # 6. Precision-Recall curves
+        configs_with_pr = {
+            name: metrics
+            for name, metrics in metrics_dict.items()
+            if (metrics.precision_curve and metrics.recall_curve and 
+                len(metrics.precision_curve) > 2 and
+                max(metrics.precision_curve) > 0.01)
+        }
+        
+        if configs_with_pr:
+            plots.plot_precision_recall_curve(
+                configs_with_pr,
+                title='Precision-Recall Curves',
+                filename='pr_curves.png'
+            )
+            logger.info(f"✓ PR curves generated for {len(configs_with_pr)} config(s): {list(configs_with_pr.keys())}")
+        else:
+            logger.warning("⚠ No valid PR curves")
 
         # 7. Adaptive drift plot (if data available)
         adaptive_file = output_path / 'adaptive/adaptive_results.json'
@@ -319,11 +358,11 @@ def run_all_experiments(output_dir: str = 'results', train_ensemble: bool = Fals
     for exp_name, result in results.items():
         status = result['status']
         if status == 'SUCCESS':
-            logger.info(f"✓ {exp_name}: {status} ({result['duration']:.2f}s)")
+            logger.info(f"✓ {exp_name}: {status} ({result['duration']:.4f}s)")
         else:
             logger.error(f"✗ {exp_name}: {status} - {result.get('error', 'Unknown error')}")
     
-    logger.info(f"\nTotal execution time: {total_duration:.2f}s")
+    logger.info(f"\nTotal execution time: {total_duration:.4f}s")
     logger.info(f"Results saved to: {output_path}")
     
     # Check if all succeeded
