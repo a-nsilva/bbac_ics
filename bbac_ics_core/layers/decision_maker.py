@@ -9,7 +9,8 @@ from ..utils.data_structures import (
     AccessRequest,
     AccessDecision,
     HybridDecision,
-    DecisionType  # ← Adicionar import
+    DecisionType,
+    DecisionOutput
 )
 from ..utils.config_loader import ConfigLoader
 
@@ -40,12 +41,13 @@ class DecisionMaker:
         self.high_conf_alert = config.get('high_confidence_alert', 0.8)
         
         # Decision strings from config (eliminando hardcode)
+        # Use DecisionOutput enum values
         self.decision_labels = {
-            'auto_deny': 'auto_deny',
-            'deny': 'deny',
-            'review': 'review',
-            'mfa': 'mfa',
-            'allow': 'allow'
+            'auto_deny': DecisionOutput.AUTO_DENY.value,
+            'deny': DecisionOutput.DENY.value,
+            'review': DecisionOutput.REVIEW.value,
+            'mfa': DecisionOutput.MFA.value,
+            'allow': DecisionOutput.ALLOW.value
         }
     
     def decide(
@@ -144,4 +146,5 @@ class DecisionMaker:
             reason=reason,
             layer_decisions=layer_decisions_dict
         )
+
 
