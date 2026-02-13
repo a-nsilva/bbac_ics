@@ -8,6 +8,7 @@ import numpy as np
 from collections import deque
 from typing import Dict, List
 from ..utils.data_structures import AccessRequest, LayerDecision, ActionType
+from .markov_chain import MarkovChain
 
 
 class LSTMPredictor:
@@ -16,28 +17,35 @@ class LSTMPredictor:
     def __init__(
         self,
         sequence_length: int = 5,
-        anomaly_threshold: float = 0.5
+        anomaly_threshold: float = 0.5,
+        use_markov: bool = True
     ):
         """
-        Initialize LSTM predictor.
+        Initialize LSTM predictor (currently uses Markov Chain).
         
         Args:
             sequence_length: Number of past actions to consider
             anomaly_threshold: Threshold for anomaly detection
+            use_markov: Use Markov Chain (True) or fallback heuristics (False)
         """
         self.sequence_length = sequence_length
         self.anomaly_threshold = anomaly_threshold
+        self.use_markov = use_markov
         
-        # Track sequences per agent: {agent_id: deque([action1, action2, ...])}
-        self.sequences: Dict[str, deque] = {}
-        
-        # Common action transitions (Markov-like baseline)
-        # TODO: Replace with actual LSTM model
-        self.transition_probs: Dict[tuple, float] = {}
+        # Use Markov Chain as sequence model
+        if use_markov:
+            self.markov_chain = MarkovChain(
+                sequence_length=sequence_length,
+                anomaly_threshold=anomaly_threshold
+            )
+        else:
+            # Fallback: track sequences manually
+            self.sequences: Dict[str, deque] = {}
+            self.transition_probs: Dict[tuple, float] = {}
     
     def analyze(self, request: AccessRequest) -> LayerDecision:
         """
-        Analyze request using sequence history.
+        Analyze request using sequence model.
         
         Args:
             request: AccessRequest object
@@ -45,45 +53,12 @@ class LSTMPredictor:
         Returns:
             LayerDecision with score and decision
         """
-        start = time.time()
-        
-        # Get agent's action sequence
-        agent_id = request.agent_id
-        if agent_id not in self.sequences:
-            self.sequences[agent_id] = deque(maxlen=self.sequence_length)
-        
-        sequence = list(self.sequences[agent_id])
-        
-        # Compute sequence anomaly score
-        anomaly_score = self._compute_sequence_anomaly(
-            sequence,
-            request.action,
-            request
-        )
-        
-        # Update sequence
-        self.sequences[agent_id].append(request.action.value)
-        
-        # Convert to legitimacy score
-        score = 1.0 - anomaly_score
-        
-        decision = "grant" if score >= self.anomaly_threshold else "deny"
-        
-        latency_ms = (time.time() - start) * 1000
-        
-        return LayerDecision(
-            layer_name="sequence",
-            score=score,
-            decision=decision,
-            confidence=score,
-            latency_ms=latency_ms,
-            explanation={
-                "anomaly_score": anomaly_score,
-                "sequence_length": len(sequence),
-                "current_action": request.action.value,
-                "threshold": self.anomaly_threshold
-            }
-        )
+        if self.use_markov:
+            # Delegate to Markov Chain
+            return self.markov_chain.analyze(request)
+        else:
+            # Fallback to heuristic logic
+            return self._analyze_heuristic(request)
     
     def _compute_sequence_anomaly(
         self,
@@ -137,12 +112,50 @@ class LSTMPredictor:
     
     def update_model(self, trusted_sequences: List[List[str]]):
         """
-        Update transition probabilities from trusted data.
+        Update sequence model from trusted data.
         
         Args:
             trusted_sequences: List of action sequences from trusted behavior
         """
-        # Count transitions
+        if self.use_markov:
+            self.markov_chain.update_model(trusted_sequences)
+        else:
+            # Fallback: update transition probabilities
+            self._update_transition_probs(trusted_sequences)
+
+    def _analyze_heuristic(self, request: AccessRequest) -> LayerDecision:
+        """Fallback heuristic analysis (original logic)."""
+        start = time.time()
+        
+        agent_id = request.agent_id
+        if agent_id not in self.sequences:
+            self.sequences[agent_id] = deque(maxlen=self.sequence_length)
+        
+        sequence = list(self.sequences[agent_id])
+        anomaly_score = self._compute_sequence_anomaly(sequence, request.action, request)
+        self.sequences[agent_id].append(request.action.value)
+        
+        score = 1.0 - anomaly_score
+        decision = "grant" if score >= self.anomaly_threshold else "deny"
+        latency_ms = (time.time() - start) * 1000
+        
+        return LayerDecision(
+            layer_name="sequence",
+            score=score,
+            decision=decision,
+            confidence=score,
+            latency_ms=latency_ms,
+            explanation={
+                "anomaly_score": anomaly_score,
+                "sequence_length": len(sequence),
+                "current_action": request.action.value,
+                "threshold": self.anomaly_threshold,
+                "model": "heuristic"
+            }
+        )
+    
+    def _update_transition_probs(self, trusted_sequences: List[List[str]]):
+        """Update transition probabilities (fallback)."""
         transition_counts: Dict[tuple, int] = {}
         total_transitions = 0
         
@@ -152,9 +165,7 @@ class LSTMPredictor:
                 transition_counts[transition] = transition_counts.get(transition, 0) + 1
                 total_transitions += 1
         
-        # Convert to probabilities
         if total_transitions > 0:
             self.transition_probs = {
-                k: v / total_transitions
-                for k, v in transition_counts.items()
+                k: v / total_transitions for k, v in transition_counts.items()
             }
