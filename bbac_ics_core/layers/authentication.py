@@ -3,8 +3,10 @@
 BBAC ICS Framework - Authentication Layer
 Simulates authentication validation for experimental purposes.
 """
+
 import time
 from typing import Dict, Tuple
+
 from ..utils.data_structures import AccessRequest, AuthStatus
 
 
@@ -60,3 +62,4 @@ class AuthenticationModule:
         """Reset attempt counter for session."""
         if session_id in self.session_attempts:
             del self.session_attempts[session_id]
+
