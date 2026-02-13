@@ -95,7 +95,7 @@ def train_ensemble_model(output_dir: Path):
     
     return fusion
     
-def run_all_experiments(output_dir: str = 'results'train_ensemble: bool = False):
+def run_all_experiments(output_dir: str = 'results', train_ensemble: bool = False):
     """
     Run complete experimental suite.
     
