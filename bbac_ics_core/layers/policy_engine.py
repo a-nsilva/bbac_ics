@@ -86,7 +86,8 @@ class PolicyEngine:
         Returns:
             LayerDecision with policy compliance score
         """
-        start = time.time()
+        #start = time.time()
+        start = time.perf_counter()
         
         violations = []
         compliance_score = 1.0
@@ -127,7 +128,8 @@ class PolicyEngine:
         
         decision = "grant" if compliance_score >= 0.5 else "deny"
         
-        latency_ms = (time.time() - start) * 1000
+        #latency_ms = (time.time() - start) * 1000
+        latency_ms = (time.perf_counter() - start) * 1000
         
         return LayerDecision(
             layer_name="policy",
@@ -141,3 +143,4 @@ class PolicyEngine:
                 "rules_checked": 5
             }
         )
+
