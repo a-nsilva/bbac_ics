@@ -125,7 +125,8 @@ class LSTMPredictor:
 
     def _analyze_heuristic(self, request: AccessRequest) -> LayerDecision:
         """Fallback heuristic analysis (original logic)."""
-        start = time.time()
+        #start = time.time()
+        start = time.perf_counter()
         
         agent_id = request.agent_id
         if agent_id not in self.sequences:
@@ -137,7 +138,8 @@ class LSTMPredictor:
         
         score = 1.0 - anomaly_score
         decision = "grant" if score >= self.anomaly_threshold else "deny"
-        latency_ms = (time.time() - start) * 1000
+        #latency_ms = (time.time() - start) * 1000
+        latency_ms = (time.perf_counter() - start) * 1000
         
         return LayerDecision(
             layer_name="sequence",
@@ -169,3 +171,4 @@ class LSTMPredictor:
             self.transition_probs = {
                 k: v / total_transitions for k, v in transition_counts.items()
             }
+
