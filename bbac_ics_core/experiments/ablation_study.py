@@ -220,10 +220,10 @@ class AblationStudy:
             scores.append(hybrid_decision.score) 
 
         # DEBUG: Print sample data
-        print(f"\n[DEBUG] Sample latencies: {latencies[:10]}")
-        print(f"[DEBUG] Sample scores: {scores[:10]}")
-        print(f"[DEBUG] Latency stats: min={min(latencies):.4f}, max={max(latencies):.4f}, mean={np.mean(latencies):.4f}")
-        print(f"[DEBUG] Score stats: min={min(scores):.4f}, max={max(scores):.4f}, unique={len(set(scores))}")
+        #print(f"\n[DEBUG] Sample latencies: {latencies[:10]}")
+        #print(f"[DEBUG] Sample scores: {scores[:10]}")
+        #print(f"[DEBUG] Latency stats: min={min(latencies):.4f}, max={max(latencies):.4f}, mean={np.mean(latencies):.4f}")
+        #print(f"[DEBUG] Score stats: min={min(scores):.4f}, max={max(scores):.4f}, unique={len(set(scores))}")
 
         # Calculate metrics with scores for ROC/PR curves
         metrics = self.metrics_calc.calculate_classification_metrics(
@@ -313,4 +313,5 @@ def main():
 
 if __name__ == '__main__':
     main()
+
 
