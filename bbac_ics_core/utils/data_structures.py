@@ -657,6 +657,9 @@ class PathsConfig:
     profiles_dir: Path
     logs_dir: Path
     quarantine_dir: Path
+    train_file: str
+    validation_file: str
+    test_file: str
 
 @dataclass
 class EngineConfig:
