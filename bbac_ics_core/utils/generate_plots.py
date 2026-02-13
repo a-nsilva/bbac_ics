@@ -427,7 +427,62 @@ class GeneratePlots:
         logger.info(f"Saved ablation comparison: {output_path}")
         
         return fig
-  
+
+    def plot_drift_detection(
+        self,
+        drift_score: float,
+        threshold: float = 0.15,
+        filename: str = 'drift_detection.png'
+    ) -> Figure:
+        """
+        Plot behavioral drift detection result.
+        
+        Args:
+            drift_score: KL divergence score
+            threshold: Drift detection threshold
+            filename: Output filename
+            
+        Returns:
+            Matplotlib figure
+        """
+        fig, ax = plt.subplots(figsize=(6, 4))
+        
+        # Bar chart
+        colors = ['green' if drift_score < threshold else 'red']
+        ax.bar(['Drift Score'], [drift_score], color=colors, alpha=0.7, width=0.4)
+        
+        # Threshold line
+        ax.axhline(y=threshold, color='r', linestyle='--', linewidth=2, label=f'Threshold ({threshold})')
+        
+        # Labels
+        ax.set_ylabel('KL Divergence', fontsize=12)
+        ax.set_title('Behavioral Drift Detection', fontsize=14, fontweight='bold')
+        ax.set_ylim([0, max(drift_score * 1.2, threshold * 1.5)])
+        ax.legend(fontsize=10)
+        ax.grid(True, alpha=0.3, axis='y')
+        
+        # Status text
+        status = "No Drift" if drift_score < threshold else "Drift Detected"
+        color = "green" if drift_score < threshold else "red"
+        ax.text(
+            0, drift_score + 0.02,
+            f'{status}\n(KL = {drift_score:.4f})',
+            ha='center',
+            va='bottom',
+            fontsize=10,
+            color=color,
+            fontweight='bold'
+        )
+        
+        plt.tight_layout()
+        
+        # Save
+        output_path = self.output_dir / filename
+        fig.savefig(output_path, bbox_inches='tight')
+        logger.info(f"Saved drift detection plot: {output_path}")
+        
+        return fig
+        
     def close_all(self):
         """Close all matplotlib figures."""
         plt.close('all')
