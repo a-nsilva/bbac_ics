@@ -681,6 +681,16 @@ class ThresholdsConfig:
   use_confidence_weighted: bool = True
   min_confidence_for_auto: float = 0.9
 
+@dataclass
+class FullConfig:
+    baseline: BaselineConfig
+    fusion: FusionConfig
+    learning: LearningConfig
+    policy: PolicyConfig
+    ros: ROSConfig
+    paths: PathsConfig
+    thresholds: ThresholdsConfig
+
 
 __all__ = [
     # Type aliases
