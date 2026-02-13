@@ -3,12 +3,15 @@
 BBAC ICS Framework - Behavioral Baseline Layer
 Implements adaptive baseline computation using sliding window (70% recent, 30% historical).
 """
-import pandas as pd
+
 import pickle
-import numpy as np
 from pathlib import Path
 from typing import Dict, Optional, Tuple
+
+import numpy as np
+import pandas as pd
 from scipy.stats import entropy
+
 from ..utils.config_loader import ConfigLoader
 
 
@@ -342,6 +345,3 @@ class BaselineManager:
             return float(statistic)
         
         return 0.0
-
-
-
