@@ -325,9 +325,6 @@ if __name__ == '__main__':
         default='results',
         help='Output directory for results'
     )
-    
-    args = parser.parse_args()
-
     parser.add_argument(
         '--train-ensemble',
         action='store_true',
