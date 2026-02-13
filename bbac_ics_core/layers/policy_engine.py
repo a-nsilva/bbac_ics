@@ -5,14 +5,15 @@ Implements Rule-based and Behavior-Attribute-based Access Control.
 """
 import time
 from typing import Dict, List, Set
+
+from ..utils.config_loader import ConfigLoader
 from ..utils.data_structures import (
     AccessRequest,
-    LayerDecision,
     ActionType,
+    AgentRole,
+    LayerDecision,
     ResourceType,
-    AgentRole
 )
-from ..utils.config_loader import ConfigLoader
 
 
 class PolicyEngine:
@@ -143,4 +144,5 @@ class PolicyEngine:
                 "rules_checked": 5
             }
         )
+
 
