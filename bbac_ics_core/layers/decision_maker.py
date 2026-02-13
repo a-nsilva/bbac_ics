@@ -3,16 +3,18 @@
 BBAC ICS Framework - Decision Maker Layer
 Applies thresholds to fusion score and generates final access decision.
 """
+
 import time
 from typing import Dict
+
+from ..utils.config_loader import ConfigLoader
 from ..utils.data_structures import (
     AccessRequest,
     AccessDecision,
-    HybridDecision,
     DecisionType,
-    DecisionOutput
+    DecisionOutput,
+    HybridDecision
 )
-from ..utils.config_loader import ConfigLoader
 
 
 class DecisionMaker:
@@ -148,6 +150,7 @@ class DecisionMaker:
             reason=reason,
             layer_decisions=layer_decisions_dict
         )
+
 
 
 
