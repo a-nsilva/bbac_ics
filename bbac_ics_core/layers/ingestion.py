@@ -6,10 +6,14 @@ Implements:
 - Data preprocessing and normalization
 - Batch and stream processing
 """
-import pandas as pd
+
 from typing import Dict
+
+import pandas as pd
+
 from ..utils.data_structures import AccessRequest
 from ..utils.data_utils import compute_temporal_features
+
 
 def ingest_single(raw_event: Dict) -> AccessRequest:
     """
@@ -110,4 +114,3 @@ def _normalize(events: pd.DataFrame) -> pd.DataFrame:
             events[col] = events[col].astype(str).str.lower().str.strip()
     
     return events
-
