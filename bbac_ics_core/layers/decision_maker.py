@@ -65,7 +65,8 @@ class DecisionMaker:
         Returns:
             AccessDecision with final verdict
         """
-        start = time.time()
+        #start = time.time()
+        start = time.perf_counter()
         
         score = hybrid_decision.score
         
@@ -113,7 +114,8 @@ class DecisionMaker:
         if score >= self.high_conf_alert and decision == self.decision_labels['allow']:
             reason = "high_confidence_approval"
         
-        latency_ms = (time.time() - start) * 1000
+        #latency_ms = (time.time() - start) * 1000
+        latency_ms = (time.perf_counter() - start) * 1000
         total_latency = hybrid_decision.total_latency_ms + latency_ms
         
         # Build layer decisions breakdown
@@ -146,5 +148,6 @@ class DecisionMaker:
             reason=reason,
             layer_decisions=layer_decisions_dict
         )
+
 
 
