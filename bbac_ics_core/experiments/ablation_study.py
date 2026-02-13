@@ -276,7 +276,9 @@ class AblationStudy:
         for config_name, result in results.items():
             serializable[config_name] = {
                 'config': result['config'],
-                'metrics': result['metrics']
+                'metrics': result['metrics'],
+                'predictions': result.get('predictions', []),   
+                'ground_truth': result.get('ground_truth', []) 
             }
         
         with open(output_file, 'w') as f:
@@ -314,6 +316,7 @@ def main():
 
 if __name__ == '__main__':
     main()
+
 
 
 
