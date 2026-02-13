@@ -291,7 +291,7 @@ class AblationStudy:
         print("=" * 50)
         
         # Header
-        print(f"{'Configuration':<20} {'Accuracy':<12} {'F1':<12} {'Latency (ms)':<15}")
+        print(f"{'Configuration':<20} {'Accuracy':<12} {'F1':<12} {'ROC-AUC':<12} {'Latency (ms)':<15}")
         print("-" * 50)
         
         # Rows
@@ -301,6 +301,7 @@ class AblationStudy:
                 f"{config_name:<20} "
                 f"{metrics['accuracy']:<12.4f} "
                 f"{metrics['f1_score']:<12.4f} "
+                f"{metrics.get('roc_auc', 0.0):<12.4f} "
                 f"{metrics['latency']['mean']:<15.4f}"
             )
 
@@ -313,5 +314,6 @@ def main():
 
 if __name__ == '__main__':
     main()
+
 
 
