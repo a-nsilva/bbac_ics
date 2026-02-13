@@ -54,7 +54,7 @@ ml_params:
 learning:
   buffer_size: 1000                  # Trusted buffer size before triggering updates
   min_samples_for_update: 100        # Minimum samples required for profile update
-  trust_threshold: 0.8               # eliminar, duplicado em thresholds, corrigir 
+  #trust_threshold: 0.8               # eliminar, duplicado em thresholds, corrigir 
 
 # Policy engine
 policy:
