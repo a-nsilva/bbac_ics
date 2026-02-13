@@ -4,7 +4,7 @@ BBAC ICS Framework - Score Fusion Layer
 Combines decisions from statistical, sequence, and policy layers.
 """
 import time
-from typing import Dict, List
+from typing import Dict, List, Optional
 from ..utils.data_structures import (
     LayerDecision,
     HybridDecision,
@@ -12,6 +12,7 @@ from ..utils.data_structures import (
     FusionStrategy
 )
 from ..utils.config_loader import ConfigLoader
+from ..models.ensemble_predictor import EnsemblePredictor
 
 
 class FusionLayer:
@@ -35,6 +36,14 @@ class FusionLayer:
         })
         self.high_conf_threshold = config.get('high_confidence_threshold', 0.9)
         self.decision_threshold = config.get('decision_threshold', 0.5)
+
+        # Meta-classifier (ensemble)
+        self.use_meta_classifier = config.get('use_meta_classifier', False)
+        self.ensemble: Optional[EnsemblePredictor] = None
+        
+        if self.use_meta_classifier:
+            model_type = config.get('meta_classifier_model', 'logistic_regression')
+            self.ensemble = EnsemblePredictor(model_type=model_type)
     
     def fuse(
         self,
@@ -59,7 +68,7 @@ class FusionLayer:
             'statistical': 'behavioral',
             'sequence': 'ml'
         }
-        
+        """
         if self.method == 'weighted_voting':
             score, strategy = self._weighted_voting(layer_decisions, layer_map)
         elif self.method == 'rule_priority':
@@ -69,7 +78,20 @@ class FusionLayer:
         else:
             # Default to weighted voting
             score, strategy = self._weighted_voting(layer_decisions, layer_map)
-        
+        """
+        # Use meta-classifier if available and trained
+        if self.use_meta_classifier and self.ensemble and self.ensemble.is_trained:
+            score, strategy = self._meta_classifier_fusion(layer_decisions, layer_map)
+        elif self.method == 'weighted_voting':
+            score, strategy = self._weighted_voting(layer_decisions, layer_map)
+        elif self.method == 'rule_priority':
+            score, strategy = self._rule_priority(layer_decisions)
+        elif self.method == 'high_confidence_denial':
+            score, strategy = self._high_confidence_denial(layer_decisions, layer_map)
+        else:
+            # Default to weighted voting
+            score, strategy = self._weighted_voting(layer_decisions, layer_map)
+
         # Map score to decision type
         decision = self._score_to_decision(score)
         
@@ -147,3 +169,61 @@ class FusionLayer:
             return DecisionType.GRANT
         else:
             return DecisionType.DENY
+
+
+    def _meta_classifier_fusion(
+        self,
+        layer_decisions: Dict[str, LayerDecision],
+        layer_map: Dict[str, str]
+    ) -> tuple:
+        """
+        Use meta-classifier (ensemble) to combine layer scores.
+        
+        Args:
+            layer_decisions: Layer decisions
+            layer_map: Mapping of layer names to weight keys
+            
+        Returns:
+            (score, strategy) tuple
+        """
+        # Extract scores in order: rule, behavioral, ml
+        rule_score = layer_decisions.get('policy', LayerDecision(
+            layer_name='policy', score=0.5, decision='deny', confidence=0.5, latency_ms=0
+        )).score
+        
+        behavioral_score = layer_decisions.get('statistical', LayerDecision(
+            layer_name='statistical', score=0.5, decision='deny', confidence=0.5, latency_ms=0
+        )).score
+        
+        ml_score = layer_decisions.get('sequence', LayerDecision(
+            layer_name='sequence', score=0.5, decision='deny', confidence=0.5, latency_ms=0
+        )).score
+        
+        # Predict with ensemble
+        score = self.ensemble.predict_score(rule_score, behavioral_score, ml_score)
+        
+        return score, FusionStrategy.META_CLASSIFIER
+    
+    def train_ensemble(
+        self,
+        layer_scores_list: List[tuple],
+        ground_truth: List[int]
+    ):
+        """
+        Train meta-classifier on historical data.
+        
+        Args:
+            layer_scores_list: List of (rule, behavioral, ml) score tuples
+            ground_truth: List of binary labels (0=deny, 1=allow)
+        """
+        if not self.use_meta_classifier or not self.ensemble:
+            raise ValueError("Meta-classifier not enabled in config")
+        
+        self.ensemble.train(layer_scores_list, ground_truth)
+    
+    def get_ensemble_importance(self) -> Dict:
+        """Get feature importance from ensemble."""
+        if not self.ensemble or not self.ensemble.is_trained:
+            return {}
+        
+        return self.ensemble.get_feature_importance()
