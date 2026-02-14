@@ -1,14 +1,16 @@
 #!/usr/bin/env python3
 """
-BBAC ICS Framework - Ensemble Meta-Learner
-Adaptively combines rule, behavioral, and ML layer scores using meta-classification.
+BBAC_ICS Framework - Ensemble Meta-Learner
+Adaptively combines rule, behavioral, and Markov Chain layer scores using meta-classification.
 """
-import numpy as np
+
 import pickle
 from pathlib import Path
 from typing import Dict, List, Optional, Tuple
-from sklearn.linear_model import LogisticRegression
+
+import numpy as np
 from sklearn.preprocessing import StandardScaler
+from sklearn.linear_model import LogisticRegression
 
 
 class EnsemblePredictor:
@@ -21,6 +23,7 @@ class EnsemblePredictor:
     Supports:
     - Logistic Regression (default, fast, interpretable)
     - XGBoost (optional, more powerful)
+    - Random Forest (optional, balance)
     """
     
     def __init__(
@@ -32,7 +35,7 @@ class EnsemblePredictor:
         Initialize ensemble meta-learner.
         
         Args:
-            model_type: 'logistic_regression' or 'xgboost'
+            model_type: 'logistic_regression', 'xgboost', or 'random_forest'
             random_state: Random seed
         """
         self.model_type = model_type
@@ -43,7 +46,7 @@ class EnsemblePredictor:
             self.model = LogisticRegression(
                 random_state=random_state,
                 max_iter=1000,
-                class_weight='balanced'  # Handle imbalanced data
+                class_weight='balanced'
             )
         elif model_type == 'xgboost':
             try:
@@ -56,10 +59,17 @@ class EnsemblePredictor:
                     eval_metric='logloss'
                 )
             except ImportError:
-                raise ImportError(
-                    "XGBoost not installed. Use 'pip install xgboost' or "
-                    "set model_type='logistic_regression'"
-                )
+                raise ImportError("XGBoost not installed. Use 'pip install xgboost'")
+        
+        elif model_type == 'random_forest': 
+            from sklearn.ensemble import RandomForestClassifier
+            self.model = RandomForestClassifier(
+                random_state=random_state,
+                n_estimators=100,
+                max_depth=10,
+                class_weight='balanced',
+                n_jobs=-1 
+            )
         else:
             raise ValueError(f"Unknown model_type: {model_type}")
         
@@ -70,7 +80,7 @@ class EnsemblePredictor:
         self.is_trained = False
         
         # Feature names
-        self.feature_names = ['rule_score', 'behavioral_score', 'ml_score']
+        self.feature_names = ['rule_score', 'behavioral_score', 'sequence_score']
     
     def train(
         self,
@@ -81,7 +91,7 @@ class EnsemblePredictor:
         Train meta-learner on layer outputs.
         
         Args:
-            layer_scores: List of (rule_score, behavioral_score, ml_score) tuples
+            layer_scores: List of (rule_score, behavioral_score, sequence_score) tuples
             ground_truth: List of binary labels (0=deny, 1=allow)
         """
         if len(layer_scores) != len(ground_truth):
@@ -103,7 +113,7 @@ class EnsemblePredictor:
         self,
         rule_score: float,
         behavioral_score: float,
-        ml_score: float
+        sequence_score: float
     ) -> float:
         """
         Predict final score from layer scores.
@@ -111,17 +121,17 @@ class EnsemblePredictor:
         Args:
             rule_score: Policy layer score [0, 1]
             behavioral_score: Statistical layer score [0, 1]
-            ml_score: Sequence layer score [0, 1]
+            sequence_score: Sequence layer score [0, 1]
             
         Returns:
             Final ensemble score [0, 1]
         """
         if not self.is_trained:
             # Fallback to simple average if not trained
-            return (rule_score + behavioral_score + ml_score) / 3.0
+            return (rule_score + behavioral_score + sequence_score) / 3.0
         
         # Prepare features
-        X = np.array([[rule_score, behavioral_score, ml_score]])
+        X = np.array([[rule_score, behavioral_score, sequence_score]])
         X_scaled = self.scaler.transform(X)
         
         # Predict probability of positive class (allow)
@@ -138,7 +148,7 @@ class EnsemblePredictor:
         Predict scores for batch of requests.
         
         Args:
-            layer_scores: List of (rule, behavioral, ml) score tuples
+            layer_scores: List of (rule, behavioral, sequence_score) score tuples
             
         Returns:
             List of ensemble scores
@@ -165,13 +175,13 @@ class EnsemblePredictor:
             return {}
         
         if self.model_type == 'logistic_regression':
-            # Use absolute coefficients as importance
+
             coefs = np.abs(self.model.coef_[0])
-            # Normalize to sum to 1
+
             importance = coefs / coefs.sum()
             
-        elif self.model_type == 'xgboost':
-            # Use feature importance from XGBoost
+        elif self.model_type == ['xgboost', 'random_forest']:
+
             importance = self.model.feature_importances_
         
         return {
@@ -194,7 +204,7 @@ class EnsemblePredictor:
         return {
             'rule': float(coefs[0]),
             'behavioral': float(coefs[1]),
-            'ml': float(coefs[2]),
+            'sequence_score': float(coefs[2]),
             'intercept': float(self.model.intercept_[0])
         }
     
@@ -280,3 +290,4 @@ class EnsemblePredictor:
             'feature_importance': self.get_feature_importance(),
             'learned_weights': self.get_learned_weights()
         }
+
