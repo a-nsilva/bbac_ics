@@ -1,8 +1,9 @@
 #!/usr/bin/env python3
 """
-BBAC ICS Framework - LSTM Sequence Predictor
-Implements sequence-based behavioral analysis using LSTM.
+BBAC_ICS Framework - Sequence Predictor (Markov Chain)
+Analyzes action sequences using first-order Markov Chain.
 """
+
 import time
 import numpy as np
 from collections import deque
@@ -11,8 +12,13 @@ from ..utils.data_structures import AccessRequest, LayerDecision, ActionType
 from .markov_chain import MarkovChain
 
 
-class LSTMPredictor:
-    """LSTM-based sequence predictor for behavioral patterns."""
+class SequencePredictor:
+    """
+    Sequence analysis using Markov Chain transitions.
+    
+    Detects anomalies in action sequences based on learned
+    transition probabilities P(action_t | action_t-1).
+    """
     
     def __init__(
         self,
@@ -21,12 +27,12 @@ class LSTMPredictor:
         use_markov: bool = True
     ):
         """
-        Initialize LSTM predictor (currently uses Markov Chain).
+        Initialize sequence predictor.
         
         Args:
-            sequence_length: Number of past actions to consider
+            sequence_length: Length of sequences to analyze
             anomaly_threshold: Threshold for anomaly detection
-            use_markov: Use Markov Chain (True) or fallback heuristics (False)
+            use_markov: Use Markov Chain (always True)
         """
         self.sequence_length = sequence_length
         self.anomaly_threshold = anomaly_threshold
@@ -171,4 +177,5 @@ class LSTMPredictor:
             self.transition_probs = {
                 k: v / total_transitions for k, v in transition_counts.items()
             }
+
 
