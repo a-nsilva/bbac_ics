@@ -1,0 +1,131 @@
+bbac_main_node:
+  ros__parameters:
+    # --- Global Configuration ---
+    
+    baseline:
+      window_days: 10
+      recent_weight: 0.7
+      max_historical_baselines: 10
+      update_on_buffer_full: true
+      update_on_drift_detected: false
+      enable_behavioral: true
+      
+      # Drift Detection Settings
+      drift_detection:
+        enabled: false
+        method: "kl_divergence"
+        threshold: 0.15
+        min_samples: 50
+        check_interval_hours: 6
+
+    fusion:
+      fusion_method: "weighted_voting"
+      enable_ml: true
+      
+      # Layer weights (must sum to 1.0)
+      weights:
+        rule: 0.4
+        behavioral: 0.3
+        ml: 0.3
+      
+      # Fusion Thresholds
+      high_confidence_threshold: 0.9
+      decision_threshold: 0.5
+      
+      # Meta-classifier settings
+      use_meta_classifier: false
+      meta_classifier_model: "logistic_regression"
+
+    ml_params:
+      statistical:
+        anomaly_threshold: 0.5
+        contamination: 0.1
+      sequence:
+        anomaly_threshold: 0.5
+        sequence_length: 5
+
+    learning:
+      buffer_size: 1000
+      min_samples_for_update: 100
+      # trust_threshold removido (duplicado)
+
+    policy:
+      maintenance_hours: [2, 3]
+      enable_policy: true
+
+    ros:
+      node_name: "bbac_node"
+      target_latency_ms: 100.0
+      qos_depth: 10
+
+    paths:
+      data_dir: "data/raw"
+      profiles_dir: "profiles"
+      logs_dir: "logs"
+      quarantine_dir: "quarantine"
+      train_file: "trainer.csv"
+      validation_file: "validation.csv"
+      test_file: "test.csv"
+
+    thresholds:
+      max_auth_attempts: 3
+      trust_threshold: 0.8
+      min_confidence_for_update: 0.7
+      require_grant_for_update: true
+      
+      # Decision thresholds
+      t_allow: 0.6          # score >= 0.6 -> ALLOW
+      t_mfa: 0.4            # 0.4 <= score < 0.6 -> MFA
+      t_review: 0.2         # 0.2 <= score < 0.4 -> REVIEW
+      t_auto_deny: 0.2      # score < 0.2 -> AUTO DENY
+      
+      high_confidence_alert: 0.8
+
+    emergency_defaults:
+      severity: "high"
+      priority: 80
+      required_actions:
+        - "log_incident"
+        - "notify_supervisor"
+      notifications:
+        - "supervisor"
+        - "security_officer"
+
+    dataset_generation:
+      total_samples: 100000
+      train_ratio: 0.7
+      val_ratio: 0.15
+      test_ratio: 0.15
+      train_anomaly_rate: 0.05
+      val_anomaly_rate: 0.10
+      test_anomaly_rate: 0.15
+      
+      resources:
+        - "database_inventory"
+        - "database_production"
+        - "database_quality"
+        - "actuator_arm_01"
+        - "actuator_arm_02"
+        - "actuator_gripper_01"
+        - "sensor_temp_01"
+        - "sensor_pressure_02"
+        - "camera_main"
+        - "plc_station_a"
+        - "plc_station_b"
+        - "safety_system"
+        - "admin_panel"
+        - "emergency_controls"
+      
+      locations:
+        - "assembly_line"
+        - "maintenance_bay"
+        - "warehouse"
+        - "inspection_area"
+        - "control_room"
+
+# Configuração separada para o nó de avaliação (se necessário)
+experiment_evaluator_node:
+  ros__parameters:
+    # O output_dir geralmente é passado via launch argument, 
+    # mas pode ter defaults aqui
+    default_output_dir: "results"
