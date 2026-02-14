@@ -10,7 +10,7 @@ from collections import defaultdict
 from pathlib import Path
 
 import rclpy
-from bbac_ics_msg.msg import AccessDecision as AccessDecisionMsg
+from bbac_ics.msg import AccessDecision as AccessDecisionMsg
 from rclpy.node import Node
 from rclpy.qos import QoSProfile, ReliabilityPolicy, HistoryPolicy
 from std_msgs.msg import String
