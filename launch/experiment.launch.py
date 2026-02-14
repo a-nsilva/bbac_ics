@@ -17,7 +17,7 @@ def generate_launch_description():
     """Generate launch description for BBAC experiments."""
     
     # Package directory
-    pkg_dir = get_package_share_directory('bbac_ics_core')
+    pkg_dir = get_package_share_directory('bbac_ics')
     
     # Configuration file
     config_file = os.path.join(pkg_dir, 'config', 'params.yaml')
@@ -49,7 +49,7 @@ def generate_launch_description():
     
     # BBAC Main Node
     bbac_main_node = Node(
-        package='bbac_ics_core',
+        package='bbac_ics',
         executable='bbac_main_node',
         name='bbac_main_node',
         output='screen',
@@ -59,7 +59,7 @@ def generate_launch_description():
     
     # Experiment Evaluator Node
     evaluator_node = Node(
-        package='bbac_ics_core',
+        package='bbac_ics',
         executable='experiment_evaluator_node',
         name='experiment_evaluator_node',
         output='screen',
