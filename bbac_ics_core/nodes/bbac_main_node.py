@@ -16,8 +16,8 @@ from bbac_ics.msg import (
 from rclpy.node import Node
 from rclpy.qos import HistoryPolicy, QoSProfile, ReliabilityPolicy
 
-from ..layers.authentication import AuthenticationModule
-from ..layers.baseline_manager import BaselineManager
+from bbac_ics_core.layers.authentication import AuthenticationModule
+from bbac_ics_core.layers.baseline_manager import BaselineManager
 from ..layers.decision_maker import DecisionMaker
 from ..layers.feature_extractor import FeatureExtractor
 from ..layers.fusion_layer import FusionLayer
