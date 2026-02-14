@@ -5,7 +5,8 @@ if(CMAKE_COMPILER_IS_GNUCXX OR CMAKE_CXX_COMPILER_ID MATCHES "Clang")
   add_compile_options(-Wall -Wextra -Wpedantic)
 endif()
 
-# 1. Find dependencies
+# Find dependencies
+# ===============================
 find_package(ament_cmake REQUIRED)
 find_package(ament_cmake_python REQUIRED)
 find_package(rclpy REQUIRED)
@@ -16,6 +17,14 @@ find_package(std_msgs REQUIRED)
 # ===============================
 #ament_python_install_package(${PROJECT_NAME})
 ament_python_install_package(${PROJECT_NAME}_core)
+
+# Make wrappers executable
+# ===============================
+file(CHMOD 
+  ${CMAKE_CURRENT_SOURCE_DIR}/bbac_main_node
+  ${CMAKE_CURRENT_SOURCE_DIR}/experiment_evaluator_node
+  PERMISSIONS OWNER_READ OWNER_WRITE OWNER_EXECUTE GROUP_READ GROUP_EXECUTE WORLD_READ WORLD_EXECUTE
+)
 
 # Install ROS node
 # ===============================
