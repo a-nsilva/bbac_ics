@@ -44,11 +44,11 @@ install(
 )
 
 rosidl_generate_interfaces(${PROJECT_NAME}
-  "msg/AccessDecision.msg"
-  "msg/AccessRequest.msg"          
-  "msg/EmergencyAlert.msg"        
-  "msg/LayerDecisionDetail.msg"
-  "msg/LayerOutput.msg"         
+  "msgs/AccessDecision.msg"
+  "msgs/AccessRequest.msg"          
+  "msgs/EmergencyAlert.msg"        
+  "msgs/LayerDecisionDetail.msg"
+  "msgs/LayerOutput.msg"         
   DEPENDENCIES std_msgs
 )
 
