@@ -20,12 +20,12 @@ ament_python_install_package(${PROJECT_NAME}_core)
 
 # Install ROS node
 # ===============================
-install(
-  PROGRAMS
-    bbac_ics_core/nodes/bbac_main_node.py
-    bbac_ics_core/nodes/experiment_evaluator_node.py
-  DESTINATION lib/${PROJECT_NAME}
-)
+# install(
+#  PROGRAMS
+#    bbac_ics_core/nodes/bbac_main_node.py
+#    bbac_ics_core/nodes/experiment_evaluator_node.py
+#  DESTINATION lib/${PROJECT_NAME}
+# )
 
 install(
   PROGRAMS
