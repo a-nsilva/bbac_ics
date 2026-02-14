@@ -174,7 +174,7 @@ class BBACMainNode(Node):
         self._publish_layer_output(stat_decision, self.stat_output_pub)
         
         # Sequence layer
-        seq_decision = self.lstm_predictor.analyze(request)
+        seq_decision = self.sequence_predictor.analyze(request)
         layer_decisions['sequence'] = seq_decision
         self._publish_layer_output(seq_decision, self.seq_output_pub)
         
@@ -281,5 +281,6 @@ def main(args=None):
 
 if __name__ == '__main__':
     main()
+
 
 
