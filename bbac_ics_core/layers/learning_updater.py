@@ -11,7 +11,7 @@ from typing import List, Dict
 import pandas as pd
 
 from ..layers.baseline_manager import BaselineManager
-from ..models.lstm_predictor import LSTMPredictor
+from ..models.sequence_predictor import SequencePredictor
 from ..utils.config_loader import ConfigLoader
 from ..utils.data_structures import (
     AccessDecision,
@@ -31,7 +31,7 @@ class LearningUpdater:
     def __init__(
         self,
         baseline_manager: BaselineManager,
-        lstm_predictor: LSTMPredictor,
+        sequence_predictor: SequencePredictor,
         config: Dict = None
     ):
         """
@@ -39,14 +39,14 @@ class LearningUpdater:
         
         Args:
             baseline_manager: BaselineManager instance
-            lstm_predictor: LSTMPredictor instance
+            _predictor: SequencePredictor instance
             config: Learning configuration
         """
         if config is None:
             config = ConfigLoader.load().get('learning', {})
         
         self.baseline_manager = baseline_manager
-        self.lstm_predictor = lstm_predictor
+        self.sequence_predictor = sequence_predictor
         
         self.buffer_size = config.get('buffer_size', 1000)
         self.min_samples = config.get('min_samples_for_update', 100)
@@ -153,9 +153,9 @@ class LearningUpdater:
         # Update baseline
         self.baseline_manager.update_baseline(agent_id, df)
         
-        # Update LSTM transition probabilities
+        # Update Sequence Predictor transition probabilities
         sequences = self._extract_sequences(buffer)
-        self.lstm_predictor.update_model(sequences)
+        self.sequence_predictor.update_model(sequences)
         
         # Clear buffer
         self.trusted_buffer[agent_id] = []
@@ -208,3 +208,4 @@ class LearningUpdater:
         
         # Clear quarantine
         self.quarantine = []
+
