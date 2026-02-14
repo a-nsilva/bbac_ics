@@ -1,7 +1,0 @@
-#!/usr/bin/env python3
-# /workspaces/bbac_ics/experiment_evaluator_node
-
-from bbac_ics_core.nodes.experiment_evaluator_node import main
-
-if __name__ == '__main__':
-    main()
