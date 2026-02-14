@@ -1,15 +1,16 @@
 #!/usr/bin/env python3
 """
-BBAC ICS Framework - Experiment Launch
-Launches BBAC system with evaluator node for experiments.
+BBAC_ICS Framework - Experiment Launch
+Launches BBAC system with experiment evaluator.
 """
-from launch import LaunchDescription
-from launch_ros.actions import Node
-from launch.actions import DeclareLaunchArgument, LogInfo, IncludeLaunchDescription
-from launch.substitutions import LaunchConfiguration
-from launch.launch_description_sources import PythonLaunchDescriptionSource
-from ament_index_python.packages import get_package_share_directory
+
 import os
+
+from ament_index_python.packages import get_package_share_directory
+from launch import LaunchDescription
+from launch.actions import DeclareLaunchArgument, LogInfo
+from launch.substitutions import LaunchConfiguration
+from launch_ros.actions import Node
 
 
 def generate_launch_description():
@@ -34,30 +35,39 @@ def generate_launch_description():
         description='Logging level'
     )
     
-    experiment_name_arg = DeclareLaunchArgument(
-        'experiment_name',
-        default_value='baseline_test',
-        description='Name of the experiment'
+    ground_truth_arg = DeclareLaunchArgument(
+        'ground_truth_file',
+        default_value='ground_truth.json',
+        description='Path to ground truth JSON'
     )
     
-    # Include system launch
-    system_launch = IncludeLaunchDescription(
-        PythonLaunchDescriptionSource(
-            os.path.join(pkg_dir, 'launch', 'system.launch.py')
-        ),
-        launch_arguments={
-            'config_file': LaunchConfiguration('config_file'),
-            'log_level': LaunchConfiguration('log_level'),
-        }.items()
+    output_dir_arg = DeclareLaunchArgument(
+        'output_dir',
+        default_value='results_experiment',
+        description='Output directory for results'
     )
     
-    # Evaluator node
-    evaluator_node = Node(
+    # BBAC Main Node
+    bbac_main_node = Node(
         package='bbac_ics_core',
-        executable='evaluator_node',
-        name='evaluator_node',
+        executable='bbac_main_node',
+        name='bbac_main_node',
         output='screen',
         parameters=[LaunchConfiguration('config_file')],
+        arguments=['--ros-args', '--log-level', LaunchConfiguration('log_level')]
+    )
+    
+    # Experiment Evaluator Node
+    evaluator_node = Node(
+        package='bbac_ics_core',
+        executable='experiment_evaluator_node',
+        name='experiment_evaluator_node',
+        output='screen',
+        parameters=[
+            LaunchConfiguration('config_file'),
+            {'ground_truth_file': LaunchConfiguration('ground_truth_file')},
+            {'output_dir': LaunchConfiguration('output_dir')}
+        ],
         arguments=['--ros-args', '--log-level', LaunchConfiguration('log_level')]
     )
     
@@ -65,8 +75,10 @@ def generate_launch_description():
     return LaunchDescription([
         config_arg,
         log_level_arg,
-        experiment_name_arg,
-        LogInfo(msg=['Launching BBAC Experiment: ', LaunchConfiguration('experiment_name')]),
-        system_launch,
+        ground_truth_arg,
+        output_dir_arg,
+        LogInfo(msg=['Launching BBAC Experiment System...']),
+        LogInfo(msg=['Output directory: ', LaunchConfiguration('output_dir')]),
+        bbac_main_node,
         evaluator_node,
     ])
