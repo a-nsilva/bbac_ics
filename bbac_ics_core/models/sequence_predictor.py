@@ -5,10 +5,12 @@ Analyzes action sequences using first-order Markov Chain.
 """
 
 import time
-import numpy as np
 from collections import deque
 from typing import Dict, List
-from ..utils.data_structures import AccessRequest, LayerDecision, ActionType
+
+import numpy as np
+
+from ..utils.data_structures import AccessRequest, ActionType, LayerDecision
 from .markov_chain import MarkovChain
 
 
@@ -177,5 +179,6 @@ class SequencePredictor:
             self.transition_probs = {
                 k: v / total_transitions for k, v in transition_counts.items()
             }
+
 
 
