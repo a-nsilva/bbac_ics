@@ -19,8 +19,6 @@ setup(
     ],
     entry_points={
         'console_scripts': [
-            'bbac_main_node = bbac_ics_core.nodes.bbac_main_node:main',
-            'experiment_evaluator_node = bbac_ics_core.nodes.experiment_evaluator_node:main', 
             'ablation_study = bbac_ics_core.experiments.ablation_study:main',
             'adaptive_eval = bbac_ics_core.experiments.adaptive_eval:main',
             'dynamic_rules_test = bbac_ics_core.experiments.dynamic_rules_test:main',
