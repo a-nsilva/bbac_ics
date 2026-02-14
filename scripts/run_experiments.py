@@ -385,8 +385,8 @@ def run_all_experiments(output_dir: str = 'results', train_ensemble: bool = Fals
             
             comparisons = ['policy_only', 'statistical_only', 'sequence_only']
             
-            logger.info("\nWilcoxon Signed-Rank Tests (full_system vs baselines):")
-            logger.info("-" * 80)
+            logger.info("Wilcoxon Signed-Rank Tests (full_system vs baselines):")
+            logger.info("-" * 500)
             
             for baseline in comparisons:
                 if baseline in config_predictions and len(config_predictions[baseline]) > 0:
@@ -436,13 +436,13 @@ def run_all_experiments(output_dir: str = 'results', train_ensemble: bool = Fals
                 for param, value in weights.items():
                     logger.info(f"  {param:<15}: {value:.4f}")
         else:
-            logger.info("\n⚠️ Meta-learner not trained. Run with --train-ensemble for feature importance.")
+            logger.info("⚠️ Meta-learner not trained. Run with --train-ensemble for feature importance.")
         
     except Exception as e:
         logger.error(f"Statistical analysis failed: {e}")
     
     # Summary
-    logger.info("\n" + "=" * 50)
+    logger.info("=" * 50)
     logger.info("EXPERIMENTAL SUITE SUMMARY")
     logger.info("=" * 50)
     
@@ -453,7 +453,7 @@ def run_all_experiments(output_dir: str = 'results', train_ensemble: bool = Fals
         else:
             logger.error(f"✗ {exp_name}: {status} - {result.get('error', 'Unknown error')}")
     
-    logger.info(f"\nTotal execution time: {total_duration:.4f}s")
+    logger.info(f"Total execution time: {total_duration:.4f}s")
     logger.info(f"Results saved to: {output_path}")
     
     # Check if all succeeded
@@ -470,21 +470,48 @@ def run_all_experiments(output_dir: str = 'results', train_ensemble: bool = Fals
 if __name__ == '__main__':
     import argparse
     
-    parser = argparse.ArgumentParser(description='Run BBAC experiments')
     parser.add_argument(
-        '--output-dir',
-        type=str,
-        default='results',
-        help='Output directory for results'
+        '--logistic_regression',
+        action='store_true',
+        help='Use Logistic Regression meta-learner'
+    )
+    parser.add_argument(
+        '--xgboost',
+        action='store_true',
+        help='Use XGBoost meta-learner'
+    )
+    parser.add_argument(
+        '--random_forest',
+        action='store_true',
+        help='Use Random Forest meta-learner'
     )
     parser.add_argument(
         '--train-ensemble',
         action='store_true',
         help='Train ensemble meta-learner before experiments'
     )
+    parser.add_argument(
+        '--output-dir',
+        type=str,
+        default=None,
+        help='Custom output directory (auto-generated if not specified)'
+    )
     
     args = parser.parse_args()
-    
+
+    if args.xgboost:
+        model_type = 'xgboost'
+        output_dir = args.output_dir or 'results_xgboost'
+    elif args.random_forest:
+        model_type = 'random_forest'
+        output_dir = args.output_dir or 'results_randomforest'
+    else:  # default logistic
+        model_type = 'logistic_regression'
+        output_dir = args.output_dir or 'results_logistic'
+
+    logger.info(f"Meta-learner: {model_type}")
+    logger.info(f"Output directory: {output_dir}")
+
     results = run_all_experiments(
         output_dir=args.output_dir,
         train_ensemble=args.train_ensemble
