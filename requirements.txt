@@ -4,6 +4,7 @@
 # ============================================================================
 
 # Core
+setuptools<80
 numpy>=1.23.0,<1.25.0    # Compatible: scipy sistema + sklearn + tensorflow
 scipy>=1.10.0,<1.12.0    # Explicit version (evita conflito com apt)
 pandas~=2.1              # Stable data manipulation
