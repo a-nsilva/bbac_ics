@@ -3,20 +3,22 @@
 BBAC ICS - Dataset Publisher
 Publishes test dataset to /bbac/requests topic.
 """
-import rclpy
-from rclpy.node import Node
-from rclpy.qos import QoSProfile, ReliabilityPolicy, HistoryPolicy
-import time
+
 import json
 import sys
+import time
 from pathlib import Path
+
+import rclpy
+from bbac_ics_msg.msg import AccessRequest as AccessRequestMsg
+from rclpy.node import Node
+from rclpy.qos import QoSProfile, ReliabilityPolicy, HistoryPolicy
 
 # Add parent to path
 sys.path.insert(0, str(Path(__file__).parent.parent))
 
-from bbac_ics_msgs.msg import AccessRequest as AccessRequestMsg
-from bbac_ics_core.utils.data_loader import DataLoader
 from bbac_ics_core.layers.ingestion import ingest_batch
+from bbac_ics_core.utils.data_loader import DataLoader
 
 
 class DatasetPublisher(Node):
