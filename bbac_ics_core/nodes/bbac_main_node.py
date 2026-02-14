@@ -7,7 +7,7 @@ Coordinates all layers and processes access requests.
 import time
 
 import rclpy
-from bbac_ics_msg.msg import (
+from bbac_ics.msg import (
     AccessDecision as AccessDecisionMsg,
     AccessRequest as AccessRequestMsg,
     LayerDecisionDetail,
