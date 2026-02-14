@@ -3,18 +3,18 @@
 BBAC ICS Framework - Main Orchestrator Node
 Coordinates all layers and processes access requests.
 """
-import rclpy
-from rclpy.node import Node
-from rclpy.qos import QoSProfile, ReliabilityPolicy, HistoryPolicy
+
 import time
 
+import rclpy
 from bbac_ics_msgs.msg import (
-    AccessRequest as AccessRequestMsg,
     AccessDecision as AccessDecisionMsg,
+    AccessRequest as AccessRequestMsg,
     LayerDecisionDetail,
-    LayerOutput
+    LayerOutput,
 )
-
+from rclpy.node import Node
+from rclpy.qos import HistoryPolicy, QoSProfile, ReliabilityPolicy
 
 from ..layers.authentication import AuthenticationModule
 from ..layers.baseline_manager import BaselineManager
@@ -24,10 +24,10 @@ from ..layers.fusion_layer import FusionLayer
 from ..layers.ingestion import ingest_single
 from ..layers.learning_updater import LearningUpdater
 from ..layers.policy_engine import PolicyEngine
-from ..models.lstm_predictor import LSTMPredictor
+from ..models.sequence_predictor import SequencePredictor
 from ..models.statistical_detector import StatisticalDetector
 from ..utils.config_loader import ConfigLoader
-from ..utils.data_structures import AccessRequest, AccessDecision
+from ..utils.data_structures import AccessDecision, AccessRequest
 
 
 class BBACMainNode(Node):
@@ -109,7 +109,7 @@ class BBACMainNode(Node):
             anomaly_threshold=ml_config.get('statistical', {}).get('anomaly_threshold', 0.5)
         )
         
-        self.lstm_predictor = LSTMPredictor(
+        self.sequence_predictor = SequencePredictor(
             sequence_length=ml_config.get('sequence', {}).get('sequence_length', 5),
             anomaly_threshold=ml_config.get('sequence', {}).get('anomaly_threshold', 0.5)
         )
@@ -126,7 +126,7 @@ class BBACMainNode(Node):
         # Learning
         self.learning_updater = LearningUpdater(
             self.baseline_manager,
-            self.lstm_predictor,
+            self.sequence_predictor,
             config.get('learning')
         )
     
@@ -281,4 +281,5 @@ def main(args=None):
 
 if __name__ == '__main__':
     main()
+
 
