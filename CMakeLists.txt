@@ -23,8 +23,7 @@ ament_python_install_package(${PROJECT_NAME}_core)
 install(
   PROGRAMS
     bbac_ics_core/nodes/bbac_main_node.py
-    bbac_ics_core/nodes/baseline_manager_node.py
-    bbac_ics_core/nodes/evaluator_node.py
+    bbac_ics_core/nodes/experiment_evaluator_node.py
   DESTINATION lib/${PROJECT_NAME}
 )
 
