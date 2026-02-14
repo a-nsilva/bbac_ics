@@ -1,9 +1,10 @@
-"""BBAC Models"""
+"""BBAC ICS Framework Models"""
 
+from .sequence_predictor import SequencePredictor
 from .statistical_detector import StatisticalDetector
-from .lstm_predictor import LSTMPredictor
 
 __all__ = [
+    'SequencePredictor',
     'StatisticalDetector',
-    'LSTMPredictor',
 ]
+
