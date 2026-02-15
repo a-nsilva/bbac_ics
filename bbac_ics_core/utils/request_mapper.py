@@ -8,7 +8,7 @@ Pure domain conversion (no pandas dependency).
 import logging
 from typing import Dict, Any, List, Optional
 
-from ..utils.data_structures import (
+from bbac_ics_core.utils.data_structures import (
     AccessRequest,
     AgentType,
     AgentRole,
