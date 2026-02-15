@@ -23,6 +23,7 @@ RUN rosdep init || true \
 WORKDIR /workspaces/bbac_ics
 
 RUN echo "source /opt/ros/humble/setup.bash" >> /root/.bashrc
-RUN echo "source /workspaces/bbac_ics/install/setup.bash" >> /root/.bashrc
+# RUN echo "source /workspaces/bbac_ics/install/setup.bash" >> /root/.bashrc
+RUN echo "if [ -f /workspaces/bbac_ics/install/setup.bash ]; then source /workspaces/bbac_ics/install/setup.bash; fi" >> /root/.bashrc
 
 CMD ["/bin/bash"]
