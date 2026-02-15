@@ -141,6 +141,10 @@ class BBACMainNode(Node):
         
         # Convert ROS msg to AccessRequest
         request = self._msg_to_request(msg)
+
+        # debug
+        self.get_logger().info(f"[DEBUG] Received msg.request_id: {msg.request_id}")
+        self.get_logger().info(f"[DEBUG] Converted to request.request_id: {request.request_id}")
         
         self.get_logger().info(
             f"Processing request {request.request_id} from {request.agent_id}"
