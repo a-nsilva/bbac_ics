@@ -18,16 +18,16 @@ from rclpy.qos import HistoryPolicy, QoSProfile, ReliabilityPolicy
 
 from bbac_ics_core.layers.authentication import AuthenticationModule
 from bbac_ics_core.layers.baseline_manager import BaselineManager
-from ..layers.decision_maker import DecisionMaker
-from ..layers.feature_extractor import FeatureExtractor
-from ..layers.fusion_layer import FusionLayer
-from ..layers.ingestion import ingest_single
-from ..layers.learning_updater import LearningUpdater
-from ..layers.policy_engine import PolicyEngine
-from ..models.sequence_predictor import SequencePredictor
-from ..models.statistical_detector import StatisticalDetector
-from ..utils.config_loader import ConfigLoader
-from ..utils.data_structures import AccessDecision, AccessRequest
+from bbac_ics_core.layers.decision_maker import DecisionMaker
+from bbac_ics_core.layers.feature_extractor import FeatureExtractor
+from bbac_ics_core.layers.fusion_layer import FusionLayer
+from bbac_ics_core.layers.ingestion import ingest_single
+from bbac_ics_core.layers.learning_updater import LearningUpdater
+from bbac_ics_core.layers.policy_engine import PolicyEngine
+from bbac_ics_core.models.sequence_predictor import SequencePredictor
+from bbac_ics_core.models.statistical_detector import StatisticalDetector
+from bbac_ics_core.utils.config_loader import ConfigLoader
+from bbac_ics_core.utils.data_structures import AccessDecision, AccessRequest
 
 
 class BBACMainNode(Node):
