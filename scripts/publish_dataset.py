@@ -10,7 +10,7 @@ import time
 from pathlib import Path
 
 import rclpy
-from bbac_ics_msg.msg import AccessRequest as AccessRequestMsg
+from bbac_ics.msg import AccessRequest as AccessRequestMsg
 from rclpy.node import Node
 from rclpy.qos import QoSProfile, ReliabilityPolicy, HistoryPolicy
 
