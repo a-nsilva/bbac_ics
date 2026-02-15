@@ -298,6 +298,23 @@ class DataLoader:
         else:
             raise ValueError(f"Invalid split: {split}")
             
+    def load_split(self, split: str) -> pd.DataFrame:
+        """
+        Load specific split (usado por scripts externos como publish_dataset).
+        """
+        # Garante que os dados foram carregados antes de pedir um split
+        if self.train_data is None:
+            self.load_all()
+
+        if split == 'train':
+            return self.train_data if self.train_data is not None else pd.DataFrame()
+        elif split == 'validation':
+            return self.validation_data if self.validation_data is not None else pd.DataFrame()
+        elif split == 'test':
+            return self.test_data if self.test_data is not None else pd.DataFrame()
+        else:
+            raise ValueError(f"Invalid split: {split}")
+            
     def get_data_split(self, split: str = 'train') -> Tuple[pd.DataFrame, Optional[pd.DataFrame]]:
         """Get features and labels for a specific split."""
         if split == 'train': data = self.train_data
