@@ -39,12 +39,15 @@ class BBACMainNode(Node):
         # Load configuration
         config = ConfigLoader.load()
         ros_config = config.get('ros', {})
-        
+
+        from rclpy.qos import DurabilityPolicy
         # QoS profile
         qos = QoSProfile(
             reliability=ReliabilityPolicy.RELIABLE,
             history=HistoryPolicy.KEEP_LAST,
-            depth=ros_config.get('qos_depth', 10)
+            #depth=ros_config.get('qos_depth', 10)
+            depth=100,  # Aumentar para não perder msgs
+            durability=DurabilityPolicy.VOLATILE  # NÃO guardar mensagens antigas
         )
         
         # Initialize layers
