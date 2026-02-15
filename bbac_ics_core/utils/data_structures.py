@@ -118,9 +118,10 @@ class ActionType(Enum):
     CALIBRATION = "calibration"
     DIAGNOSTIC = "diagnostic"
     
+    """
     @classmethod
     def from_string(cls, value: str) -> 'ActionType':
-        """Parse from dataset string."""
+        # Parse from dataset string
         value_lower = value.lower().strip()
         
         mapping = {
@@ -141,6 +142,42 @@ class ActionType(Enum):
         if value_lower in mapping:
             return mapping[value_lower]
         
+        raise ValueError(f"Unknown ActionType: {value}")
+    """
+    
+    @classmethod
+    def from_string(cls, value: Any) -> Optional['ActionType']:
+        """Parse from dataset string securely."""
+        # 1. Tratamento seguro de nulos e conversão para string
+        if value is None:
+            return None
+            
+        s_val = str(value).strip().lower()
+        
+        # 2. Lista de valores que significam "vazio" ou "nulo"
+        if s_val in ["", "nan", "none", "null", "nat"]:
+            return None
+        
+        mapping = {
+            "read": cls.READ,
+            "write": cls.WRITE,
+            "execute": cls.EXECUTE,
+            "delete": cls.DELETE,
+            "override": cls.OVERRIDE,
+            "emergency_stop": cls.EMERGENCY_STOP,
+            "emergency_override": cls.EMERGENCY_OVERRIDE,
+            "transport": cls.TRANSPORT,
+            "maintenance": cls.MAINTENANCE,
+            "monitor": cls.MONITOR,
+            "calibration": cls.CALIBRATION,
+            "diagnostic": cls.DIAGNOSTIC,
+        }
+        
+        if s_val in mapping:
+            return mapping[s_val]
+        
+        # Opcional: Retornar None em vez de erro para ser mais tolerante em produção
+        # return None 
         raise ValueError(f"Unknown ActionType: {value}")
 
 
