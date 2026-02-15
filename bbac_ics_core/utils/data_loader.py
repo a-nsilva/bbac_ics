@@ -11,8 +11,8 @@ from typing import Dict, List, Optional, Tuple
 
 import pandas as pd
 
-from ..utils.config_loader import ConfigLoader
-from ..utils.data_structures import (
+from bbac_ics_core.utils.config_loader import ConfigLoader
+from bbac_ics_core.utils.data_structures import (
     AccessRequest,
     AgentType,
     AgentRole,
@@ -43,7 +43,7 @@ class DataLoader:
             self.dataset_path = Path(dataset_path)
         else:
             self.dataset_path = Path(
-                self.paths_config.get('data_dir', 'data/100k')
+                self.paths_config.get('data_dir', 'data/raw')
             )
         
         # Validate dataset exists
@@ -53,14 +53,11 @@ class DataLoader:
         self.train_data: Optional[pd.DataFrame] = None
         self.validation_data: Optional[pd.DataFrame] = None
         self.test_data: Optional[pd.DataFrame] = None
-        self.agents_metadata: Optional[Dict] = None
-        self.anomaly_metadata: Optional[Dict] = None
         
         logger.info(f"DatasetLoader initialized with path: {self.dataset_path}")
     
     def _validate_dataset(self):
         """Validate that required dataset files exist."""
-        # APENAS os CSVs são obrigatórios
         required_files = [
             self.paths_config.get('train_file', 'bbac_trainer.csv'),
             self.paths_config.get('validation_file', 'bbac_validation.csv'),
@@ -84,34 +81,15 @@ class DataLoader:
                 error_msg += f"  - {filename}\n"
             error_msg += f"{'='*50}"
             raise FileNotFoundError(error_msg)
-        
-        # Opcional: avisar sobre arquivos opcionais ausentes
-        optional_files = ['agents.json', 'anomaly_metadata.json']
-        missing_optional = []
-        
-        for filename in optional_files:
-            filepath = self.dataset_path / filename
-            if not filepath.exists():
-                missing_optional.append(filename)
-        
-        if missing_optional:
-            logger.info(
-                f"Optional files not found (OK to skip): {', '.join(missing_optional)}"
-            )
     
     def load_all(self) -> bool:
         """Load all dataset files."""
         try:
             logger.info(f"Loading dataset from {self.dataset_path}")
             
-            # Carregar CSVs obrigatórios
             self.train_data = self._load_csv_file('train_file')
             self.validation_data = self._load_csv_file('validation_file')
             self.test_data = self._load_csv_file('test_file')
-            
-            # Carregar JSONs opcionais
-            self.agents_metadata = self._load_optional_json('agents.json')
-            self.anomaly_metadata = self._load_optional_json('anomaly_metadata.json')
             
             logger.info("✓ All required dataset files loaded successfully")
             self._print_statistics()
@@ -157,39 +135,11 @@ class DataLoader:
         logger.debug(f"Loaded {len(df)} samples from {filename}")
         return df
     
-    def _load_optional_json(self, filename: str) -> Optional[Dict]:
-        """
-        Load optional JSON file.
-        
-        Args:
-            filename: Name of JSON file
-            
-        Returns:
-            Dictionary with JSON content, or None if file doesn't exist
-        """
-        filepath = self.dataset_path / filename
-        
-        if not filepath.exists():
-            logger.debug(f"Optional JSON file not found: {filename} (skipping)")
-            return None
-        
-        try:
-            with open(filepath, 'r', encoding='utf-8') as f:
-                data = json.load(f)
-            logger.info(f"✓ Loaded optional file: {filename}")
-            return data
-        except json.JSONDecodeError as e:
-            logger.warning(f"Invalid JSON in {filename}: {e} (skipping)")
-            return None
-        except Exception as e:
-            logger.warning(f"Error loading {filename}: {e} (skipping)")
-            return None
-    
     def to_access_request(self, row: pd.Series) -> AccessRequest:
         """
         Convert dataset row to AccessRequest structure.
         
-        Maps 17 dataset fields:
+        Maps dataset fields:
         - log_id → request_id
         - timestamp → timestamp (parsed to float)
         - session_id → session_id
@@ -408,13 +358,6 @@ class DataLoader:
             'dataset_path': str(self.dataset_path),
         }
         
-        # Add metadata counts (opcional)
-        if self.agents_metadata:
-            stats['agent_profiles'] = len(self.agents_metadata)
-        
-        if self.anomaly_metadata:
-            stats['anomaly_types'] = len(self.anomaly_metadata.get('anomaly_types', []))
-        
         # Add column-based statistics
         if self.train_data is not None:
             for column in ['agent_id', 'resource', 'action']:
@@ -449,35 +392,6 @@ class DataLoader:
             return combined
         
         return self.train_data
-    
-    def get_agent_info(self, agent_id: str) -> Optional[Dict]:
-        """
-        Get metadata for a specific agent (optional).
-        
-        Args:
-            agent_id: Agent identifier
-            
-        Returns:
-            Agent metadata dictionary, or None if not available
-        """
-        if not self.agents_metadata:
-            logger.debug(f"No agents metadata available for {agent_id}")
-            return None
-        
-        return self.agents_metadata.get(agent_id)
-    
-    def get_anomaly_types(self) -> List[str]:
-        """
-        Get list of anomaly types in the dataset (optional).
-        
-        Returns:
-            List of anomaly type names, or empty list if not available
-        """
-        if not self.anomaly_metadata:
-            logger.debug("No anomaly metadata available")
-            return []
-        
-        return self.anomaly_metadata.get('anomaly_types', [])
     
     def get_data_split(self, split: str = 'train') -> Tuple[pd.DataFrame, Optional[pd.DataFrame]]:
         """
