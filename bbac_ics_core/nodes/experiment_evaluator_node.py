@@ -43,12 +43,14 @@ class ExperimentEvaluatorNode(Node):
         self.request_ids = []
         
         self.start_time = time.time()
-        
+
+        from rclpy.qos import DurabilityPolicy
         # QoS
         qos = QoSProfile(
             reliability=ReliabilityPolicy.RELIABLE,
             history=HistoryPolicy.KEEP_LAST,
-            depth=100
+            depth=100,
+            durability=DurabilityPolicy.VOLATILE  # NÃO guardar mensagens antigas
         )
         
         # Subscriber
