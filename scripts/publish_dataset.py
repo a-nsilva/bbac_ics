@@ -72,7 +72,11 @@ class DatasetPublisher(Node):
         for idx, row in self.df.iterrows():
             # Convert to ROS message
             msg = self._row_to_msg(row, idx)
-            
+
+            # DEBUG: Log first 5 IDs
+            if idx < 5:
+                self.get_logger().info(f"[PUBLISHER] ID {idx}: {msg.request_id}")
+        
             # Publish
             self.publisher.publish(msg)
             
