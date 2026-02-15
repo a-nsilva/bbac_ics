@@ -34,7 +34,7 @@
   <exec_depend>rosidl_default_runtime</exec_depend>
   <exec_depend>std_msgs</exec_depend> 
   
-  <!-- Python libs --> 
+  <!-- Python libs 
   <exec_depend>python3-numpy</exec_depend> 
   <exec_depend>python3-scipy</exec_depend> 
   <exec_depend>python3-pandas</exec_depend> 
@@ -42,6 +42,7 @@
   <exec_depend>python3-sklearn</exec_depend> 
   <exec_depend>python3-matplotlib</exec_depend> 
   <exec_depend>python3-seaborn</exec_depend>
+  --> 
   
   <!-- Test dependencies -->
   <test_depend>ament_lint_auto</test_depend>
